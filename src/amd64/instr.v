@@ -101,4 +101,5 @@ values too. Push for 32-bit values cannot be encoded in x86-64. *)
 | POP (dst: regmem OpSize4)
 | CALLrel (tgt: JmpTgt) | JMPrel (tgt: JmpTgt)
 | RETOP (size: WORD)
+| CQO
 | HLT | ENCLU | ENCLS | BADINSTR.
