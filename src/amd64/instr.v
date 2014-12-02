@@ -91,6 +91,7 @@ Inductive Instr :=
 | MUL {s} (src: regmem s)
 | IMUL s (dst: gpVReg s) (src: regmem s)
 | IMULimm s (dst: gpVReg s) (src: regmem s) (i : VWORD s)
+| IDIV {s} (src : regmem s)
 | LEA (reg: gpReg) (src: regmem OpSize4)
 | XCHG s (reg: gpVReg s) (src: regmem s)
 | JCCrel (cc: Condition) (cv: bool) (tgt: Tgt)
