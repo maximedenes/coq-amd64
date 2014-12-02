@@ -1,0 +1,7 @@
+-R src Amd64
+src/bitsrep.v
+src/bitsops.v
+src/amd64/reg.v
+src/amd64/instr.v
+src/amd64/instrsyntax.v
+src/amd64/program.v
