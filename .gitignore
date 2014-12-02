@@ -1,0 +1,9 @@
+*.vo
+*.v.d
+*.glob
+*.cm*
+.coq-native
+*.aux
+.depend
+*.o
+Makefile.bak
