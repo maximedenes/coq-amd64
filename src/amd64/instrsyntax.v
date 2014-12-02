@@ -76,7 +76,8 @@ Notation "'[' r '+' i '*' '8' '+' n ']'" :=
 
 Inductive InstrArg :=
 | InstrArgR s :> gpVReg s -> InstrArg
-| InstrArgM :> memspec -> InstrArg.
+| InstrArgM :> memspec -> InstrArg
+| InstrArgXMM :> XMMreg -> InstrArg.
 
 Inductive InstrSrc :=
 | ArgSrc :> InstrArg -> InstrSrc
@@ -193,6 +194,18 @@ Notation "'MOV' 'BYTE' x , y" :=
 (*---------------------------------------------------------------------------
     MOV operations
   ---------------------------------------------------------------------------*)
+
+(* This forces exactly one xmm operand *)
+Definition makeMOVQ dst (src : InstrSrc) :=
+  match dst, src with
+  | InstrArgXMM dst, InstrArgR OpSize8 src => MOVQ (XMMDstSrcXRM dst src)
+  | InstrArgXMM dst, InstrArgM src => MOVQ (XMMDstSrcXRM dst (RegMemM OpSize8 src))
+  | InstrArgR OpSize8 dst, InstrArgXMM src => MOVQ (XMMDstSrcRMX dst src)
+  | InstrArgM dst, InstrArgXMM src => MOVQ (XMMDstSrcRMX (RegMemM OpSize8 dst) src)
+  | _, _ => BADINSTR
+  end.
+
+Notation "'MOVQ' x , y" := (makeMOVQ x y) (x,y at level 55, at level 60) : instr_scope.
 
 Notation "'TEST' x , y"       := (TESTOP OpSize8  x%ms y) (x,y at level 55, at level 60) : instr_scope.
 Notation "'TEST' 'BYTE' x , y":= (TESTOP OpSize1 x%ms y) (x,y at level 55, at level 60) : instr_scope.

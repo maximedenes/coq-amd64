@@ -36,12 +36,18 @@ Inductive src :=
 | SrcI (c: DWORD) :> src
 | SrcM (ms: memspec) :> src
 | SrcR (r: gpReg) :> src.
+
 Inductive dstsrc (s: opsize) :=
 | DstSrcRR (dst src: gpVReg s)
 | DstSrcRM (dst: gpVReg s) (src: memspec)
 | DstSrcMR (dst: memspec) (src: gpVReg s)
 | DstSrcRI (dst: gpVReg s) (c: VWORD s)
 | DstSrcMI (dst: memspec) (c: VWORD s).
+
+(* We could support 32-bit operands there (for MOVD) *)
+Inductive xmmdstsrc :=
+| XMMDstSrcXRM (dst : XMMreg) (src : regmem OpSize8)
+| XMMDstSrcRMX (dst : regmem OpSize8) (src : XMMreg).
 
 (* Jump target: PC-relative offset *)
 (* We make this a separate type constructor to pick up type class instances later *)
@@ -80,6 +86,7 @@ Inductive Instr :=
 | MOVOP s (ds: dstsrc s)
 | MOVABS (dst : gpReg) (src : QWORD)
 | MOVX (signextend:bool) s (dst: gpReg) (src: regmem s)
+| MOVQ (ds : xmmdstsrc)
 | SHIFTOP s (op: ShiftOp) (dst: regmem s) (count: ShiftCount)
 | MUL {s} (src: regmem s)
 | IMUL s (dst: gpVReg s) (src: regmem s)

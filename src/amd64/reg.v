@@ -148,3 +148,25 @@ Coercion DWORDRegToVReg (r:DWORDReg) : gpVReg OpSize4 := r.
 Coercion WORDRegToVReg (r:WORDReg) : gpVReg OpSize2 := r.
 Coercion BYTELRegToVReg (r:BYTELReg) : gpVReg OpSize1 := r.
 Coercion AnyRegToVRegAny (r: reg) : vreg OpSize8 := r.
+
+Inductive SSEreg := YMM0 | YMM1 | YMM2  | YMM3  | YMM4  | YMM5  | YMM6 | YMM7
+                  | YMM8 | YMM9 | YMM10 | YMM11 | YMM12 | YMM13 | YMM14 | YMM15.
+
+Inductive XMMreg := mkXMMreg (r : SSEreg).
+
+Notation XMM0 := (mkXMMreg YMM0).
+Notation XMM1 := (mkXMMreg YMM1).
+Notation XMM2 := (mkXMMreg YMM2).
+Notation XMM3 := (mkXMMreg YMM3).
+Notation XMM4 := (mkXMMreg YMM4).
+Notation XMM5 := (mkXMMreg YMM5).
+Notation XMM6 := (mkXMMreg YMM6).
+Notation XMM7 := (mkXMMreg YMM7).
+Notation XMM8 := (mkXMMreg YMM8).
+Notation XMM9 := (mkXMMreg YMM9).
+Notation XMM10 := (mkXMMreg YMM10).
+Notation XMM11 := (mkXMMreg YMM1).
+Notation XMM12 := (mkXMMreg YMM12).
+Notation XMM13 := (mkXMMreg YMM13).
+Notation XMM14 := (mkXMMreg YMM14).
+Notation XMM15 := (mkXMMreg YMM15).
