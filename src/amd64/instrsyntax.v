@@ -21,8 +21,8 @@ Inductive SingletonMemSpec :=
 
 Definition fromSingletonMemSpec (msa: SingletonMemSpec) :=
   match msa with
-  | OffsetMemSpec d => mkMemSpec None d
-  | RegMemSpec r => mkMemSpec (Some(r,None)) 0
+  | OffsetMemSpec d => mkMemSpec (None,None) d
+  | RegMemSpec r => mkMemSpec (Some r,None) 0
   end.
 
 Notation "'[' m ']'" :=
@@ -30,49 +30,68 @@ Notation "'[' m ']'" :=
   (at level 0, m at level 0) : memspec_scope.
 
 Notation "'[' r '+' n ']'" :=
-  (mkMemSpec (Some(r:reg, None)) n)
+  (mkMemSpec (Some (r:reg), None) n)
   (at level 0, r at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '-' n ']'" :=
-  (mkMemSpec (Some(r:reg, None)) (negB n))
+  (mkMemSpec (Some (r:reg) None) (negB n))
   (at level 0, r at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '+' n ']'" :=
-  (mkMemSpec (Some(r:reg, Some (i,S1))) n)
+  (mkMemSpec (Some (r:reg) Some (i,S1)) n)
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '-' n ']'" :=
-  (mkMemSpec (Some(r:reg, Some (i,S1))) (negB n))
+  (mkMemSpec (Some (r:reg), Some (i,S1)) (negB n))
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '2' ']'" :=
-  (mkMemSpec (Some(r:reg, Some(i,S2))) #0)
+  (mkMemSpec (Some (r:reg), Some(i,S2)) #0)
   (at level 0, r at level 0, i at level 0) : instr_scope.
 
 Notation "'[' r '+' i '*' '2' '+' n ']'" :=
-  (mkMemSpec (Some(r:reg, Some(i,S2))) n)
+  (mkMemSpec (Some (r:reg), Some(i,S2)) n)
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '4' ']'" :=
-  (mkMemSpec (Some(r:reg, Some(i,S4))) 0)
+  (mkMemSpec (Some (r:reg), Some(i,S4)) 0)
   (at level 0, r at level 0, i at level 0) : instr_scope.
 
 Notation "'[' r '+' i '*' '4' '+' n ']'" :=
-  (mkMemSpec (Some(r:reg, Some(i,S4))) n)
+  (mkMemSpec (Some (r:reg), Some(i,S4)) n)
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '8' ']'" :=
-  (mkMemSpec (Some(r:reg, Some(i,S8))) 0)
+  (mkMemSpec (Some (r:reg), Some(i,S8)) 0)
   (at level 0, r at level 0, i at level 0) : instr_scope.
 
 Notation "'[' r '+' i '*' '8' '+' n ']'" :=
-  (mkMemSpec (Some(r:reg, Some(i,S8))) n)
+  (mkMemSpec (Some (r:reg), Some(i,S8)) n)
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
-(*Definition DWORDtoDWORDorBYTE dword : DWORD -> DWORDorBYTE dword :=
-  match dword return DWORD -> DWORDorBYTE dword
-  with true => fun d => d | false =>fun d => low 8 d end.
-*)
+Notation "'[' i '*' '2' ']'" :=
+  (mkMemSpec (None, Some(i,S2)) #0)
+  (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' i '*' '2' '+' n ']'" :=
+  (mkMemSpec (None, Some(i,S2)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' i '*' '4' ']'" :=
+  (mkMemSpec (None, Some(i,S4)) 0)
+  (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' i '*' '4' '+' n ']'" :=
+  (mkMemSpec (None, Some(i,S4)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' i '*' '8' ']'" :=
+  (mkMemSpec (None, Some(i,S8)) 0)
+  (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' i '*' '8' '+' n ']'" :=
+  (mkMemSpec (None, Some(i,S8)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Inductive InstrArg :=
 | InstrArgR s :> gpVReg s -> InstrArg
