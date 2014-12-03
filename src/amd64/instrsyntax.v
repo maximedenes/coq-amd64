@@ -228,8 +228,8 @@ Notation "'MOVQ' x , y" := (makeMOVQ x y) (x,y at level 55, at level 60) : instr
 
 Notation "'TEST' x , y"       := (TESTOP OpSize8  x%ms y) (x,y at level 55, at level 60) : instr_scope.
 Notation "'TEST' 'BYTE' x , y":= (TESTOP OpSize1 x%ms y) (x,y at level 55, at level 60) : instr_scope.
-Notation "'MOVZX' x , y" := (MOVX OpSize1 OpSize4 x%ms y%ms) (x,y at level 55, at level 60) : instr_scope.
-Notation "'MOVSX' x , y" := (MOVX OpSize4 OpSize4 x%ms y%ms) (x,y at level 55, at level 60) : instr_scope.
+Notation "'MOVZX' x , y" := (MOVX false _ x%ms y%ms) (x,y at level 55, at level 60) : instr_scope.
+Notation "'MOVSX' x , y" := (MOVX true _ x%ms y%ms) (x,y at level 55, at level 60) : instr_scope.
 
 (*---------------------------------------------------------------------------
     Shift and rotate
