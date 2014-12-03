@@ -95,6 +95,7 @@ Inductive Instr :=
 | LEA (reg: gpReg) (src: regmem OpSize4)
 | XCHG s (reg: gpVReg s) (src: regmem s)
 | JCCrel (cc: Condition) (cv: bool) (tgt: Tgt)
+| SET (cc : Condition) (cv : bool) (r : gpVReg OpSize1)
 
 (* Only 64-bit values can be pushed, although we could have allowed 16-bit
 values too. Push for 32-bit values cannot be encoded in x86-64. *)

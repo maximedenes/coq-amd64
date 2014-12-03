@@ -256,6 +256,36 @@ Definition NOP := XCHG OpSize4 EAX (RegMemR OpSize4 EAX).
 Arguments PUSH (src)%ms.
 Arguments POP (dst)%ms.
 
+Notation "'SETA'"  := (SET CC_BE false) : instr_scope.
+Notation "'SETAE'" := (SET CC_B  false) : instr_scope.
+Notation "'SETAB'" := (SET CC_B  true)  : instr_scope.
+Notation "'SETBE'" := (SET CC_BE true)  : instr_scope.
+Notation "'SETC'"  := (SET CC_B  true)  : instr_scope.
+Notation "'SETE'"  := (SET CC_Z true)   : instr_scope.
+Notation "'SETG'"  := (SET CC_LE false) : instr_scope.
+Notation "'SETGE'" := (SET CC_L false)  : instr_scope.
+Notation "'SETL'"  := (SET CC_L true)   : instr_scope.
+Notation "'SETLE'" := (SET CC_LE true)  : instr_scope.
+Notation "'SETNA'" := (SET CC_BE true)  : instr_scope.
+Notation "'SETNB'" := (SET CC_B false)  : instr_scope.
+Notation "'SETNBE'":= (SET CC_BE false) : instr_scope.
+Notation "'SETNC'" := (SET CC_B false)  : instr_scope.
+Notation "'SETNE'" := (SET CC_Z false)  : instr_scope.
+Notation "'SETNG'" := (SET CC_LE true)  : instr_scope.
+Notation "'SETNGE'":= (SET CC_L true)   : instr_scope.
+Notation "'SETNL'" := (SET CC_L false)  : instr_scope.
+Notation "'SETNLE'":= (SET CC_LE false) : instr_scope.
+Notation "'SETNO'" := (SET CC_O false)  : instr_scope.
+Notation "'SETNP'" := (SET CC_P false)  : instr_scope.
+Notation "'SETNS'" := (SET CC_S false)  : instr_scope.
+Notation "'SETNZ'" := (SET CC_Z false)  : instr_scope.
+Notation "'SETO'"  := (SET CC_O true)   : instr_scope.
+Notation "'SETP'"  := (SET CC_P true)   : instr_scope.
+Notation "'SETPE'" := (SET CC_P true)   : instr_scope.
+Notation "'SETPO'" := (SET CC_P false)  : instr_scope.
+Notation "'SETS'"  := (SET CC_S true)   : instr_scope.
+Notation "'SETZ'"  := (SET CC_Z true)   : instr_scope.
+
 (* Typical use: in "Eval showinstr in linearize p" *)
 Declare Reduction showinstr := cbv beta delta -[fromNat makeMOV makeBOP] zeta iota.
 
