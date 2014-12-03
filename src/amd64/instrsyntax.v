@@ -4,7 +4,7 @@
   ===========================================================================*)
 Require Import ZArith.
 From Ssreflect Require Import ssreflect ssrbool seq.
-Require Import bitsrep bitsops reg instr.
+Require Import bitsrep bitsops amd64.reg amd64.instr.
 Require Export Coq.Strings.String.
 
 Delimit Scope instr_scope with asm.
