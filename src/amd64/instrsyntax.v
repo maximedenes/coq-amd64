@@ -30,7 +30,15 @@ Notation "'[' m ']'" :=
   (at level 0, m at level 0) : memspec_scope.
 
 Notation "'[' r '+' n ']'" :=
+  (mkMemSpec (Some r, None) n)
+  (at level 0, r at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' r '+' n ']'" :=
   (mkMemSpec (Some (r:reg), None) n)
+  (at level 0, r at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' r '-' n ']'" :=
+  (mkMemSpec (Some r, None) (negB n))
   (at level 0, r at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '-' n ']'" :=
@@ -38,7 +46,15 @@ Notation "'[' r '-' n ']'" :=
   (at level 0, r at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '+' n ']'" :=
+  (mkMemSpec (Some r, Some (i,S1)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' r '+' i '+' n ']'" :=
   (mkMemSpec (Some (r:reg), Some (i,S1)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' r '+' i '-' n ']'" :=
+  (mkMemSpec (Some r, Some (i,S1)) (negB n))
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '-' n ']'" :=
@@ -46,24 +62,48 @@ Notation "'[' r '+' i '-' n ']'" :=
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '2' ']'" :=
+  (mkMemSpec (Some r, Some(i,S2)) #0)
+  (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '2' ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S2)) #0)
   (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '2' '+' n ']'" :=
+  (mkMemSpec (Some r, Some(i,S2)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '2' '+' n ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S2)) n)
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '4' ']'" :=
+  (mkMemSpec (Some r, Some(i,S4)) 0)
+  (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '4' ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S4)) 0)
   (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '4' '+' n ']'" :=
+  (mkMemSpec (Some r, Some(i,S4)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '4' '+' n ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S4)) n)
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '8' ']'" :=
+  (mkMemSpec (Some r, Some(i,S8)) 0)
+  (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '8' ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S8)) 0)
   (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '8' '+' n ']'" :=
+  (mkMemSpec (Some r, Some(i,S8)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '8' '+' n ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S8)) n)
