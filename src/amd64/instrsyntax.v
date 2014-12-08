@@ -34,11 +34,11 @@ Notation "'[' r '+' n ']'" :=
   (at level 0, r at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '-' n ']'" :=
-  (mkMemSpec (Some (r:reg) None) (negB n))
+  (mkMemSpec (Some (r:reg), None) (negB n))
   (at level 0, r at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '+' n ']'" :=
-  (mkMemSpec (Some (r:reg) Some (i,S1)) n)
+  (mkMemSpec (Some (r:reg), Some (i,S1)) n)
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '-' n ']'" :=
