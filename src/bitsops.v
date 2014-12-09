@@ -77,7 +77,6 @@ Notation "@ 'addB' n" := (fun p1 p2 : BITS n => addB p1 p2)
 (*(** Don't simpl unless everything is a constructor. *)
 Global Arguments adcB {!n} !carry !p1 !p2 / .*)
 (** Don't ever simpl adcB *)
-Global Opaque adcB.
 
 (* Add with carry=0 and return None on overflow *)
 Definition addBovf n (p1 p2: BITS n) :=
@@ -105,7 +104,6 @@ Notation "@ 'subB' n" := (fun p1 p2 : BITS n => subB p1 p2)
 
 (** Don't ever simpl [sbbB]. *)
 (*Global Arguments sbbB {!n} !borrow !arg1 !arg2 / .*)
-Global Opaque sbbB.
 
 Notation "b -# n" := (subB b #n) (at level 50, left associativity).
 

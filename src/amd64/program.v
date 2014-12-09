@@ -1,5 +1,5 @@
 Require Import Ssreflect.ssreflect Ssreflect.ssrbool Ssreflect.ssrnat Ssreflect.eqtype Ssreflect.seq Ssreflect.fintype.
-Require Import bitsops bitsrep instr instrsyntax.
+Require Import bitsops bitsrep instr instrsyntax monad reader writer.
 
 Set Implicit Arguments.
 Unset Strict Implicit.
@@ -10,8 +10,8 @@ Inductive program :=
   prog_instr (c: Instr)
 | prog_skip | prog_seq (p1 p2: program)
 | prog_declabel (body: DWORD -> program)
-| prog_label (l: DWORD).
-(* | prog_data {T} {R: Reader T} {W: Writer T} (RT: Roundtrip R W) (v: T). *)
+| prog_label (l: DWORD)
+| prog_data {T} {R: Reader T} {W: Writer T} (v: T).
 Coercion prog_instr: Instr >-> program.
 (*=End *)
 
@@ -73,3 +73,30 @@ Notation "'JPE'" := (JCC CC_P true)   : instr_scope.
 Notation "'JPO'" := (JCC CC_P false)  : instr_scope.
 Notation "'JS'"  := (JCC CC_S true)   : instr_scope.
 Notation "'JZ'"  := (JCC CC_Z true)   : instr_scope.
+
+(*=dd *)
+Definition db := @prog_data BYTE _ _.
+Definition dw := @prog_data WORD _ _.
+Definition dd := @prog_data DWORD _ _.
+Definition dq := @prog_data QWORD _ _.
+(*=End *)
+Definition ds s := prog_data (stringToTupleBYTE s).
+Definition dsz s := ds s;; db #0.
+Definition align m := @prog_data unit (readAlign m) (writeAlign m) tt.
+Definition alignWith b m := @prog_data unit (readAlign m) (writeAlignWith b m) tt.
+Definition pad m := @prog_data unit (readPad m) (writePad m) tt.
+Definition padWith b m := @prog_data unit (readPad m) (writePadWith b m) tt.
+Definition skipAlign m := @prog_data unit (readSkipAlign m) (writeSkipAlign m) tt.
+
+(* Sometimes handy just to get nice output *)
+Fixpoint linearizeWith (p: program) tail :=
+  match p with
+  | prog_skip => tail
+  | prog_seq p1 p2 => linearizeWith p1 (linearizeWith p2 tail)
+  | prog_declabel f => prog_declabel (fun d => linearizeWith (f d) tail)
+  | _ => if tail is prog_skip then p else prog_seq p tail
+  end.
+Definition linearize p := linearizeWith p prog_skip.
+
+Declare Reduction showprog :=
+  cbv beta delta -[fromNat fromHex makeMOV makeBOP db dw dd ds align pad] zeta iota.

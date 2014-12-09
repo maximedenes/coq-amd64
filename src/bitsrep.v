@@ -127,6 +127,11 @@ Definition split4 n1 n2 n3 n4 (p: BITS (n4+n3+n2+n1)): BITS n1 * BITS n2 * BITS 
   let (b2,rest) := split2 n2 _ rest in
   let (b3,b4)   := split2 n3 _ rest in (b1,b2,b3,b4).
 
+Definition split8 n1 n2 n3 n4 n5 n6 n7 n8 (p: BITS (n8+n7+n6+n5+n4+n3+n2+n1)): BITS n1 * BITS n2 * BITS n3 * BITS n4 * BITS n5 * BITS n6 * BITS n7 * BITS n8 :=
+  let '(b1,b2,b3,rest) := split4 n1 n2 n3 _ p in
+  let '(b4,b5,b6,rest) := split4 n4 n5 n6 _ rest in
+  let '(b7,b8) := split2 n7 n8 rest in (b1,b2,b3,b4,b5,b6,b7,b8).
+
 (* Sign extend by {extra} bits *)
 Definition signExtend extra {n} (p: BITS n.+1) := copy extra (msb p) ## p.
 
