@@ -68,7 +68,7 @@ Canonical Structure segRegEqMixin := InjEqMixin encode_segReg_inj.
 Canonical Structure segReg_eqType := Eval hnf in EqType _ segRegEqMixin.
 
 (* Low byte registers, wrapping underlying 64-bit registers *)
-Inductive BYTELReg := mkByteLReg (r : reg).
+Inductive BYTELReg := mkByteLReg (r : gpReg).
 Notation AL := (mkByteLReg RAX).
 Notation BL := (mkByteLReg RBX).
 Notation CL := (mkByteLReg RCX).
