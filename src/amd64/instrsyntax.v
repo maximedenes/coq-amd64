@@ -30,15 +30,31 @@ Notation "'[' m ']'" :=
   (at level 0, m at level 0) : memspec_scope.
 
 Notation "'[' r '+' n ']'" :=
+  (mkMemSpec (Some r, None) n)
+  (at level 0, r at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' r '+' n ']'" :=
   (mkMemSpec (Some (r:reg), None) n)
   (at level 0, r at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '-' n ']'" :=
-  (mkMemSpec (Some (r:reg) None) (negB n))
+  (mkMemSpec (Some r, None) (negB n))
+  (at level 0, r at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' r '-' n ']'" :=
+  (mkMemSpec (Some (r:reg), None) (negB n))
   (at level 0, r at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '+' n ']'" :=
-  (mkMemSpec (Some (r:reg) Some (i,S1)) n)
+  (mkMemSpec (Some r, Some (i,S1)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' r '+' i '+' n ']'" :=
+  (mkMemSpec (Some (r:reg), Some (i,S1)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
+
+Notation "'[' r '+' i '-' n ']'" :=
+  (mkMemSpec (Some r, Some (i,S1)) (negB n))
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '-' n ']'" :=
@@ -46,24 +62,48 @@ Notation "'[' r '+' i '-' n ']'" :=
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '2' ']'" :=
+  (mkMemSpec (Some r, Some(i,S2)) #0)
+  (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '2' ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S2)) #0)
   (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '2' '+' n ']'" :=
+  (mkMemSpec (Some r, Some(i,S2)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '2' '+' n ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S2)) n)
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '4' ']'" :=
+  (mkMemSpec (Some r, Some(i,S4)) 0)
+  (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '4' ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S4)) 0)
   (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '4' '+' n ']'" :=
+  (mkMemSpec (Some r, Some(i,S4)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '4' '+' n ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S4)) n)
   (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '8' ']'" :=
+  (mkMemSpec (Some r, Some(i,S8)) 0)
+  (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '8' ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S8)) 0)
   (at level 0, r at level 0, i at level 0) : instr_scope.
+
+Notation "'[' r '+' i '*' '8' '+' n ']'" :=
+  (mkMemSpec (Some r, Some(i,S8)) n)
+  (at level 0, r at level 0, i at level 0, n at level 0) : memspec_scope.
 
 Notation "'[' r '+' i '*' '8' '+' n ']'" :=
   (mkMemSpec (Some (r:reg), Some(i,S8)) n)
@@ -133,17 +173,21 @@ Definition makeBOP op dst (src: InstrSrc) :=
   | InstrArgR OpSize1 dst, InstrArgR OpSize1 src => BOP OpSize1 op (DstSrcRR OpSize1 dst src)
   | InstrArgR OpSize2 dst, InstrArgR OpSize2 src => BOP OpSize2 op (DstSrcRR OpSize2 dst src)
   | InstrArgR OpSize4 dst, InstrArgR OpSize4 src => BOP OpSize4 op (DstSrcRR OpSize4 dst src)
+  | InstrArgR OpSize8 dst, InstrArgR OpSize8 src => BOP OpSize8 op (DstSrcRR OpSize8 dst src)
 
   | InstrArgR OpSize1 dst, InstrArgM src => BOP OpSize1 op (DstSrcRM OpSize1 dst src)
   | InstrArgR OpSize2 dst, InstrArgM src => BOP OpSize2 op (DstSrcRM OpSize2 dst src)
   | InstrArgR OpSize4 dst, InstrArgM src => BOP OpSize4 op (DstSrcRM OpSize4 dst src)
+  | InstrArgR OpSize8 dst, InstrArgM src => BOP OpSize8 op (DstSrcRM OpSize8 dst src)
 
   | InstrArgR OpSize1 dst, ConstSrc n => BOP OpSize1 op (DstSrcRI OpSize1 dst (low 8 n))
   | InstrArgR OpSize4 dst, ConstSrc n => BOP OpSize4 op (DstSrcRI OpSize4 dst n)
+  | InstrArgR OpSize8 dst, ConstSrc n => BOP OpSize8 op (DstSrcRI OpSize8 dst n)
 
   | InstrArgM dst, InstrArgR OpSize1 src => BOP OpSize1 op (DstSrcMR OpSize1 dst src)
   | InstrArgM dst, InstrArgR OpSize2 src => BOP OpSize2 op (DstSrcMR OpSize2 dst src)
   | InstrArgM dst, InstrArgR OpSize4 src => BOP OpSize4 op (DstSrcMR OpSize4 dst src)
+  | InstrArgM dst, InstrArgR OpSize8 src => BOP OpSize8 op (DstSrcMR OpSize8 dst src)
 
   | InstrArgM dst, ConstSrc n => BOP OpSize4 op (DstSrcMI OpSize4 dst n)
   | _, _=> BADINSTR
