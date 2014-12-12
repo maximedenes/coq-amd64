@@ -68,7 +68,7 @@ Canonical Structure segRegEqMixin := InjEqMixin encode_segReg_inj.
 Canonical Structure segReg_eqType := Eval hnf in EqType _ segRegEqMixin.
 
 (* Low byte registers, wrapping underlying 64-bit registers *)
-Inductive BYTELReg := mkByteLReg (r : reg).
+Inductive BYTELReg := mkByteLReg (r : gpReg).
 Notation AL := (mkByteLReg RAX).
 Notation BL := (mkByteLReg RBX).
 Notation CL := (mkByteLReg RCX).
@@ -90,7 +90,7 @@ Notation R15B := (mkByteLReg R15).
 Inductive BYTEHReg := AH|BH|CH|DH.
 
 (* 16-bit registers, wrapping underlying 64-bit registers *)
-Inductive WORDReg := mkWordReg (r : reg).
+Inductive WORDReg := mkWordReg (r : gpReg).
 Notation AX := (mkWordReg RAX).
 Notation BX := (mkWordReg RBX).
 Notation CX := (mkWordReg RCX).
@@ -109,7 +109,7 @@ Notation R14W := (mkWordReg R14).
 Notation R15W := (mkWordReg R15).
 
 (* 32-bit registers, wrapping underlying 64-bit registers *)
-Inductive DWORDReg := mkDWordReg (r : reg).
+Inductive DWORDReg := mkDWordReg (r : gpReg).
 Notation EAX := (mkDWordReg RAX).
 Notation EBX := (mkDWordReg RBX).
 Notation ECX := (mkDWordReg RCX).
