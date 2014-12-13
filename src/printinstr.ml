@@ -112,7 +112,7 @@ let print_gpVReg = function
 
 let print_reg oc = function
 | GPReg r -> print_gpreg oc r
-| RIP -> fprintf oc "RIP"
+| RIP -> fprintf oc "%%rip"
 
 let print_scale oc = function
 | S1 -> fprintf oc "1"
@@ -120,11 +120,16 @@ let print_scale oc = function
 | S4 -> fprintf oc "4"
 | S8 -> fprintf oc "8"
 
-let print_word oc w = fprintf oc "####"
-let print_dword oc w = fprintf oc "####"
-let print_qword oc w = fprintf oc "####"
+let print_byte oc w = fprintf oc "%i" (toZ 7 w)
+let print_word oc w = fprintf oc "%i" (toZ 15 w)
+let print_dword oc w = fprintf oc "%i" (toZ 31 w)
+let print_qword oc w = fprintf oc "%i" (toZ 63 w)
 
-let print_vword size oc w = fprintf oc "####"
+let print_vword = function
+| OpSize1 -> print_byte
+| OpSize2 -> print_word
+| OpSize4 -> print_dword
+| OpSize8 -> print_dword
 
 let print_memspec oc = function
 | Coq_mkMemSpec ((Some base,None),off) ->
@@ -225,7 +230,7 @@ let print_instr oc = function
 | HLT
 | ENCLU
 | ENCLS
-| BADINSTR -> assert false
+| BADINSTR -> fprintf oc "badinstr"
 
 
 let rec print_program oc = function

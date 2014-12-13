@@ -1,7 +1,7 @@
-Require Import List PArith.
+Require Import List Arith ZArith.
 From Ssreflect Require Import ssreflect ssrfun ssrbool eqtype ssrnat choice seq.
 From OCamlBind Require Import ocamlbind reifiable.
-From Amd64 Require Import amd64.instr amd64.program.
+From Amd64 Require Import bitsrep amd64.instr amd64.program.
 
 Require Import ExtrOcamlNatInt.
 Require Import ExtrOcamlZInt.
@@ -15,6 +15,6 @@ Cd "extraction".
 
 Extraction Blacklist List String Int.
 
-Separate Extraction reg instr program.
+Separate Extraction bitsrep.toZ reg instr program.
 
 Cd "..".
