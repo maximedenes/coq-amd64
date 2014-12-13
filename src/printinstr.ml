@@ -131,6 +131,14 @@ let print_vword = function
 | OpSize4 -> print_dword
 | OpSize8 -> print_dword
 
+let print_data oc d =
+  match List.length d with
+  | 8 -> fprintf oc ".byte %a" print_byte d
+  | 16 -> fprintf oc ".word %a" print_word d
+  | 32 -> fprintf oc ".dword %a" print_dword d
+  | 64 -> fprintf oc ".quad %a" print_qword d
+  | _ -> assert false
+
 let print_memspec oc = function
 | Coq_mkMemSpec ((Some base,None),off) ->
     fprintf oc "%a(%a)" (print_option print_dword) off print_reg base
@@ -238,8 +246,8 @@ let rec print_program oc = function
 | Coq_prog_skip -> ()
 | Coq_prog_seq (p1,p2) -> fprintf oc "%a\n%a" print_program p1 print_program p2
 | Coq_prog_declabel f -> print_program oc (f (fromNat 32 0))
-| Coq_prog_label w -> fprintf oc "%a:\n" print_dword w
-| Coq_prog_data (_,_,data) -> fprintf oc "#DATA#"
+| Coq_prog_label w -> fprintf oc "%a:" print_dword w
+| Coq_prog_data (_,_,data) -> print_data oc (Obj.magic data)
 
 let _ = OcamlbindState.register_fun "print_program" (Obj.magic (print_program
 stdout))
