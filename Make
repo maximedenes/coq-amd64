@@ -1,4 +1,9 @@
+-I src
 -R src Amd64
+-extra src/printinstr.cmo "src/extraction.vo src/printinstr.ml" "make -C extraction"
+-extra src/printinstr.cmxs src/printinstr.cmo ""
+-extra-phony install-plugin "" "make -C extraction install"
+-extra-phony install install-plugin ""
 src/bitsrep.v
 src/bitsops.v
 src/monad.v
@@ -11,3 +16,5 @@ src/amd64/reg.v
 src/amd64/instr.v
 src/amd64/instrsyntax.v
 src/amd64/program.v
+src/extraction.v
+src/amd64/plugin.v

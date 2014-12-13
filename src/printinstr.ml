@@ -211,8 +211,10 @@ let print_instr oc = function
    fprintf oc "imul%a %a, %a, %a" print_opsize size (print_vword size) src2 (print_regmem size) src1 (print_gpVReg size) dst
 | IDIV (size,dst) -> fprintf oc "idiv%a %a" print_opsize size (print_regmem size) dst
 | LEA (dst,src) -> fprintf oc "leaq %a, %a" (print_regmem OpSize8) src print_gpreg dst
-| XCHG (size,dst,src) -> assert false (* opsize * gpVReg * regmem *)
-| JCCrel (c,b,tgt) -> fprintf oc "J%a%a %a" print_jump_condition c print_negation b print_dword tgt
+| XCHG (size,dst,src) ->
+    fprintf oc "xchg%a %a, %a" print_opsize size (print_regmem size) src
+     (print_gpVReg size) dst
+| JCCrel (c,b,tgt) -> fprintf oc "j%a%a %a" print_jump_condition c print_negation b print_dword tgt
 | SET (c,b,dst) -> fprintf oc "set%a%a %a" print_jump_condition c print_negation b print_gpreg_byte dst
 | PUSH src -> assert false
 | POP dst -> assert false (* regmem *)
@@ -229,7 +231,10 @@ let print_instr oc = function
 let rec print_program oc = function
 | Coq_prog_instr i -> print_instr oc i
 | Coq_prog_skip -> ()
-| Coq_prog_seq (p1,p2) -> print_program oc p1; print_program oc p2
-| Coq_prog_declabel f -> assert false
+| Coq_prog_seq (p1,p2) -> fprintf oc "%a\n%a" print_program p1 print_program p2
+| Coq_prog_declabel f -> print_program oc (f (fromNat 32 0))
 | Coq_prog_label w -> fprintf oc "%a:\n" print_dword w
 | Coq_prog_data (_,_,data) -> fprintf oc "#DATA#"
+
+let _ = OcamlbindState.register_fun "print_program" (Obj.magic (print_program
+stdout))
