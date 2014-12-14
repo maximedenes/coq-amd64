@@ -34,9 +34,9 @@ Notation "l ':;;' p" := (prog_seq (prog_label l) p)
 Definition relToAbs (c : DWORD -> Instr) : DWORD -> program :=
   fun a => LOCAL Next; c (subB a Next);; Next:;.
 
-Definition JMP t := if t is JmpTgtI (mkTgt t) then relToAbs JMPrel t else JMPrel t.
-Definition CALL t := if t is JmpTgtI (mkTgt t) then relToAbs CALLrel t else CALLrel t.
-Definition JCC cc cv := relToAbs (JCCrel cc cv).
+Definition JMP t := (* if t is JmpTgtI (mkTgt t) then relToAbs JMPrel t else *) JMPrel t.
+Definition CALL t := (* if t is JmpTgtI (mkTgt t) then relToAbs CALLrel t else *) CALLrel t.
+Definition JCC cc cv := (* relToAbs *) (JCCrel cc cv).
 
 Arguments CALL (t)%ms.
 Arguments JMP (t)%ms.

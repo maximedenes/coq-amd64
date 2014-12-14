@@ -139,11 +139,16 @@ let print_data oc d =
   | 64 -> fprintf oc ".quad %a" print_qword d
   | _ -> assert false
 
+let print_label oc lbl =
+  fprintf oc ".L%i" (toZ 31 lbl)
+
 let print_memspec oc = function
 | Coq_mkMemSpec ((Some base,None),off) ->
-    fprintf oc "%a(%a)" (print_option print_dword) off print_reg base
+    let print_off = if base = RIP then print_label else print_dword in
+    fprintf oc "%a(%a)" (print_option print_off) off print_reg base
 | Coq_mkMemSpec ((obase,Some (index,scale)),off) ->
-   fprintf oc "%a(%a,%a,%a)" (print_option print_dword) off
+   let print_off = if obase = Some RIP then print_label else print_dword in
+   fprintf oc "%a(%a,%a,%a)" (print_option print_off) off
      (print_option print_reg) obase print_gpreg index print_scale scale
 | _ -> assert false
 
@@ -198,7 +203,7 @@ let print_negation oc b =
   if b then () else fprintf oc "n"
 
 let print_jump_tgt oc = function
-| JmpTgtI w -> print_dword oc w
+| JmpTgtI w -> print_label oc w
 | JmpTgtM ms -> print_memspec oc ms
 | JmpTgtR r -> print_reg oc r
 
@@ -227,7 +232,9 @@ let print_instr oc = function
 | XCHG (size,dst,src) ->
     fprintf oc "xchg%a %a, %a" print_opsize size (print_regmem size) src
      (print_gpVReg size) dst
-| JCCrel (c,b,tgt) -> fprintf oc "j%a%a %a" print_jump_condition c print_negation b print_dword tgt
+| JCCrel (c,b,tgt) ->
+    fprintf oc "j%a%a %a" print_jump_condition c print_negation b
+      print_label tgt
 | SET (c,b,dst) -> fprintf oc "set%a%a %a" print_jump_condition c print_negation b print_gpreg_byte dst
 | PUSH src -> assert false
 | POP dst -> assert false (* regmem *)
@@ -246,7 +253,7 @@ let rec print_program oc = function
 | Coq_prog_skip -> ()
 | Coq_prog_seq (p1,p2) -> fprintf oc "%a\n%a" print_program p1 print_program p2
 | Coq_prog_declabel f -> print_program oc (f (fromNat 32 0))
-| Coq_prog_label w -> fprintf oc "%a:" print_dword w
+| Coq_prog_label w -> fprintf oc "%a:" print_label w
 | Coq_prog_data (_,_,data) -> print_data oc (Obj.magic data)
 
 let _ = OcamlbindState.register_fun "print_program" (Obj.magic (print_program
