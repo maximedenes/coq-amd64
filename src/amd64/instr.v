@@ -16,8 +16,9 @@ Require Import bitsrep reg.
 Inductive scale := S1 | S2 | S4 | S8.
 
 Inductive memspec :=
-  mkMemSpec (sib: option reg * option (gpReg * scale))
-            (offset: DWORD).
+  mkMemSpec (sib: option reg * option (nonSPReg * scale))
+            (offset: DWORD)
+| RIP (offset: DWORD).
 
 (* Register or memory *)
 Inductive regmem s :=
@@ -35,7 +36,7 @@ Coercion DWORDRegImmI (d: DWORD)    := RegImmI OpSize4 d.
 Inductive src :=
 | SrcI (c: DWORD) :> src
 | SrcM (ms: memspec) :> src
-| SrcR (r: gpReg) :> src.
+| SrcR (r: reg) :> src.
 
 Inductive dstsrc (s: opsize) :=
 | DstSrcRR (dst src: gpVReg s)
@@ -81,18 +82,18 @@ Inductive Condition :=
 Inductive Instr :=
 | UOP s (op: UnaryOp) (dst: regmem s)
 | BOP s (op: BinOp) (ds: dstsrc s)
-| BITOP (op: BitOp) (dst: regmem OpSize4) (bit: gpReg + BYTE)
+| BITOP (op: BitOp) (dst: regmem OpSize4) (bit: reg + BYTE)
 | TESTOP s (dst: regmem s) (src: regimm s)
-| MOVOP s (ds: dstsrc s)
-| MOVABS (dst : gpReg) (src : QWORD)
-| MOVX (signextend:bool) s (dst: gpReg) (src: regmem s)
+| MOVOP s (dst: dstsrc s)
+| MOVABS (dst : reg) (src : QWORD)
+| MOVX (signextend:bool) s (dst: reg) (src: regmem s)
 | MOVQ (ds : xmmdstsrc)
 | SHIFTOP s (op: ShiftOp) (dst: regmem s) (count: ShiftCount)
 | MUL {s} (src: regmem s)
 | IMUL s (dst: gpVReg s) (src: regmem s)
 | IMULimm s (dst: gpVReg s) (src: regmem s) (i : VWORD s)
 | IDIV {s} (src : regmem s)
-| LEA (reg: gpReg) (src: regmem OpSize4)
+| LEA (reg: reg) (src: regmem OpSize4)
 | XCHG s (reg: gpVReg s) (src: regmem s)
 | JCCrel (cc: Condition) (cv: bool) (tgt: Tgt)
 | SET (cc : Condition) (cv : bool) (r : gpVReg OpSize1)
@@ -104,4 +105,4 @@ values too. Push for 32-bit values cannot be encoded in x86-64. *)
 | CALLrel (tgt: JmpTgt) | JMPrel (tgt: JmpTgt)
 | RETOP (size: WORD)
 | CQO
-| HLT | ENCLU | ENCLS | BADINSTR.
+| HLT | BADINSTR.

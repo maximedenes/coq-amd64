@@ -29,6 +29,10 @@ Notation "'[' m ']'" :=
   (fromSingletonMemSpec m)
   (at level 0, m at level 0) : memspec_scope.
 
+Notation "'[' 'rel' n ']'" :=
+  (RIP n)
+  (at level 0, r at level 0, n at level 0) : memspec_scope.
+
 Notation "'[' r '+' n ']'" :=
   (mkMemSpec (Some r, None) n)
   (at level 0, r at level 0, n at level 0) : memspec_scope.
@@ -338,11 +342,11 @@ Open Scope instr_scope.
 
 Example ex1 := ADD EAX, [RBX + 3].
 Example ex2 := INC BYTE [RCX + RDI*4 + 78].
-Example ex3 (r:gpReg) := MOV EDI, [r].
+Example ex3 (r:reg) := MOV EDI, [r].
 Example ex4 (a:DWORD) := MOV EDI, [a].
 Example ex5 (a:DWORD) := MOV EDI, a.
 Example ex6 (r:BYTELReg) := MOV AL, r.
-Example ex7 (r:gpReg) := POP [r + #x"0000001C"].
+Example ex7 (r:reg) := POP [r + #x"0000001C"].
 Example ex8 := CMP AL, (#c"!":BYTE).
 Example ex9 := MOV DX, BP. 
 Example ex10 := NOT [RBX + RDI*4 + 3]. 

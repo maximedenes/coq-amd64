@@ -95,6 +95,9 @@ VFILES:=src/amd64/program.v\
   src/amd64/instrsyntax.v\
   src/amd64/instr.v\
   src/amd64/reg.v\
+  src/bitscodec.v\
+  src/codec.v\
+  src/cast.v\
   src/writer.v\
   src/reader.v\
   src/cursor.v\

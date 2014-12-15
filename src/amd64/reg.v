@@ -13,34 +13,76 @@ Require Import bitsrep.
 (* TODO: check that RSP can be used as an index register on x86-64 with  *)
 (* REX.X = 1 and index = 0100 in SIB, although GNU AS doesn't seem to *)
 (* accept it. *)
+(* Pierre: I don't think you can. The ESP index is used to code
+non-scaled SIB, allowing you to write: LEA RAX, [RSP] (where RSP is
+the base, and there is no scaling register.) *)
 
 (* General Purpose Registers *)
-Inductive gpReg := RAX | RBX | RCX | RDX | RSI | RDI | RBP | RSP | R8 | R9
-               | R10 | R11 | R12 | R13 | R14 | R15.
+Inductive nonSPReg := RAX | RBX | RCX | RDX | RSI | RDI | RBP | R8 | R9
+| R10 | R11 | R13 | R14 | R15.
 
-Definition encode_gpReg r :=
+Definition encode_nonSPReg (r: nonSPReg) :=
   match r with
-  | RAX => 0  | RBX => 3  | RCX => 1  | RDX => 2  | RSI => 6  | RDI => 7
-  | RSP => 4  | RBP => 5  | R8 => 8   | R9 => 9  | R10 => 10 | R11 => 11
-  | R12 => 12 | R13 => 13 | R14 => 14 | R15 => 15
+    | RAX => 0
+    | RBX => 3
+    | RCX => 1
+    | RDX => 2
+    | RBP => 5
+    | RSI => 6
+    | RDI => 7
+    | R8 => 8
+    | R9 => 9
+    | R10 => 10
+    | R11 => 11
+    | R13 => 13
+    | R14 => 14
+    | R15 => 15
   end.
 
-Lemma encode_gpReg_inj : injective encode_gpReg.
+Lemma encode_nonSPReg_inj : injective encode_nonSPReg.
 Proof. by case => //; case => //. Qed.
 
-Canonical Structure gpRegEqMixin := InjEqMixin encode_gpReg_inj.
-Canonical Structure gpReg_eqType := Eval hnf in EqType _ gpRegEqMixin.
+Canonical Structure nonSPRegEqMixin := InjEqMixin encode_nonSPReg_inj.
+Canonical Structure nonSPReg_eqType := Eval hnf in EqType _ nonSPRegEqMixin.
 
-Definition decode_gpReg n :=
+Definition decode_nonSPReg n :=
   match n with
   | 0 => Some RAX  | 1 => Some RCX  | 2 => Some RDX  | 3 => Some RBX
-  | 4 => Some RSP  | 5 => Some RBP  | 6 => Some RSI  | 7 => Some RDI
+  | 5 => Some RBP  | 6 => Some RSI  | 7 => Some RDI
   | 8 => Some R8   | 9 => Some R9   | 10 => Some R10 | 11 => Some R11
-  | 12 => Some R12 | 13 => Some R13 | 14 => Some R14 | _ => None
+  | 13 => Some R13 | 14 => Some R14 | _ => None
+  end.
+
+Inductive reg := NonSPReg  (r: nonSPReg) | RSP | R12.
+Coercion NonSPReg : nonSPReg >-> reg.
+
+Definition encode_reg r :=
+  match r with
+    | NonSPReg r => encode_nonSPReg r
+    | RSP => 4
+    | R12 => 12
+  end.
+
+Lemma encode_reg_inj : injective encode_reg.
+Proof.
+  repeat (case => //).
+Qed.
+
+Canonical Structure regEqMixin := InjEqMixin encode_reg_inj.
+Canonical Structure reg_eqType := Eval hnf in EqType _ regEqMixin.
+
+Definition decode_reg n :=
+  match n with
+  | 4 => Some RSP
+  | 12 => Some R12
+  | n => match decode_nonSPReg n with
+           | None => None
+           | Some r => Some (NonSPReg r)
+         end
   end.
 
 (* All registers, including RIP but excluding RFL *)
-Inductive reg := GPReg (r : gpReg) | RIP.
+(*Inductive reg := GPReg (r : gpReg) | RIP.
 
 Coercion GPReg : gpReg >-> reg.
 
@@ -55,6 +97,7 @@ Qed.
 
 Canonical Structure regEqMixin := InjEqMixin encode_reg_inj.
 Canonical Structure reg_eqType := Eval hnf in EqType _ regEqMixin.
+ *)
 
 (* Segment registers *)
 Inductive segReg := CS | FS | GS.
@@ -68,7 +111,7 @@ Canonical Structure segRegEqMixin := InjEqMixin encode_segReg_inj.
 Canonical Structure segReg_eqType := Eval hnf in EqType _ segRegEqMixin.
 
 (* Low byte registers, wrapping underlying 64-bit registers *)
-Inductive BYTELReg := mkByteLReg (r : gpReg).
+Inductive BYTELReg := mkByteLReg (r : reg).
 Notation AL := (mkByteLReg RAX).
 Notation BL := (mkByteLReg RBX).
 Notation CL := (mkByteLReg RCX).
@@ -90,7 +133,7 @@ Notation R15B := (mkByteLReg R15).
 Inductive BYTEHReg := AH|BH|CH|DH.
 
 (* 16-bit registers, wrapping underlying 64-bit registers *)
-Inductive WORDReg := mkWordReg (r : gpReg).
+Inductive WORDReg := mkWordReg (r : reg).
 Notation AX := (mkWordReg RAX).
 Notation BX := (mkWordReg RBX).
 Notation CX := (mkWordReg RCX).
@@ -109,7 +152,7 @@ Notation R14W := (mkWordReg R14).
 Notation R15W := (mkWordReg R15).
 
 (* 32-bit registers, wrapping underlying 64-bit registers *)
-Inductive DWORDReg := mkDWordReg (r : gpReg).
+Inductive DWORDReg := mkDWordReg (r : reg).
 Notation EAX := (mkDWordReg RAX).
 Notation EBX := (mkDWordReg RBX).
 Notation ECX := (mkDWordReg RCX).
@@ -132,7 +175,7 @@ Definition gpVReg (s: opsize) :=
   | OpSize1 => BYTELReg
   | OpSize2 => WORDReg
   | OpSize4 => DWORDReg
-  | OpSize8 => gpReg
+  | OpSize8 => reg
   end.
 
 Definition vreg (s: opsize) :=
@@ -143,7 +186,7 @@ Definition vreg (s: opsize) :=
   | OpSize8 => reg
   end.
 
-Coercion RegToVReg (r: gpReg) : gpVReg OpSize8 := r.
+Coercion RegToVReg (r: reg) : gpVReg OpSize8 := r.
 Coercion DWORDRegToVReg (r:DWORDReg) : gpVReg OpSize4 := r.
 Coercion WORDRegToVReg (r:WORDReg) : gpVReg OpSize2 := r.
 Coercion BYTELRegToVReg (r:BYTELReg) : gpVReg OpSize1 := r.
