@@ -41,7 +41,6 @@ _start:
         LEA RAX, [RAX][RSI*1]
         LEA RAX, [RAX][RDI*1]               
         # Invalid: [RAX][RSP*1] = 00.100.000 = 20
-        # Invalid: [RBX][RSP*1] = 00.100.000 = 21
         # (..)
         # Codes: [RAX][0*1] ~ [RAX]
         
