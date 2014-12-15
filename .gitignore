@@ -6,4 +6,5 @@
 *.aux
 .depend
 *.o
+*~
 Makefile.bak
