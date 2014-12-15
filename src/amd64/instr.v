@@ -16,8 +16,8 @@ Require Import bitsrep reg.
 Inductive scale := S1 | S2 | S4 | S8.
 
 Inductive memspec :=
-  mkMemSpec (sib: option reg * option (gpReg * scale))
-            (offset: DWORD).
+  mkMemSpec (sib : option reg * option (gpReg * scale))
+            (offset : option DWORD).
 
 (* Register or memory *)
 Inductive regmem s :=

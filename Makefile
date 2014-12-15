@@ -46,8 +46,10 @@ TIMER=$(if $(TIMED), $(STDTIME), $(TIMECMD))
 #                        #
 ##########################
 
+OCAMLLIBS?=-I "src"
 COQLIBS?=\
-  -R "src" Amd64
+  -R "src" Amd64\
+  -I "src"
 COQDOCLIBS?=\
   -R "src" Amd64
 
@@ -68,6 +70,47 @@ GALLINA?="$(COQBIN)gallina"
 COQDOC?="$(COQBIN)coqdoc"
 COQCHK?="$(COQBIN)coqchk"
 COQMKTOP?="$(COQBIN)coqmktop"
+
+COQSRCLIBS?=-I "$(COQLIB)kernel" -I "$(COQLIB)lib" \
+  -I "$(COQLIB)library" -I "$(COQLIB)parsing" -I "$(COQLIB)pretyping" \
+  -I "$(COQLIB)interp" -I "$(COQLIB)printing" -I "$(COQLIB)intf" \
+  -I "$(COQLIB)proofs" -I "$(COQLIB)tactics" -I "$(COQLIB)tools" \
+  -I "$(COQLIB)toplevel" -I "$(COQLIB)stm" -I "$(COQLIB)grammar" \
+  -I "$(COQLIB)config" \
+  -I "$(COQLIB)/plugins/Derive" \
+  -I "$(COQLIB)/plugins/btauto" \
+  -I "$(COQLIB)/plugins/cc" \
+  -I "$(COQLIB)/plugins/decl_mode" \
+  -I "$(COQLIB)/plugins/extraction" \
+  -I "$(COQLIB)/plugins/field" \
+  -I "$(COQLIB)/plugins/firstorder" \
+  -I "$(COQLIB)/plugins/fourier" \
+  -I "$(COQLIB)/plugins/funind" \
+  -I "$(COQLIB)/plugins/micromega" \
+  -I "$(COQLIB)/plugins/nsatz" \
+  -I "$(COQLIB)/plugins/omega" \
+  -I "$(COQLIB)/plugins/quote" \
+  -I "$(COQLIB)/plugins/ring" \
+  -I "$(COQLIB)/plugins/romega" \
+  -I "$(COQLIB)/plugins/rtauto" \
+  -I "$(COQLIB)/plugins/setoid_ring" \
+  -I "$(COQLIB)/plugins/subtac" \
+  -I "$(COQLIB)/plugins/syntax" \
+  -I "$(COQLIB)/plugins/xml"
+ZFLAGS=$(OCAMLLIBS) $(COQSRCLIBS) -I $(CAMLP4LIB)
+
+CAMLC?=$(OCAMLC) -c -rectypes -thread
+CAMLOPTC?=$(OCAMLOPT) -c -rectypes -thread
+CAMLLINK?=$(OCAMLC) -rectypes -thread
+CAMLOPTLINK?=$(OCAMLOPT) -rectypes -thread
+GRAMMARS?=grammar.cma
+ifeq ($(CAMLP4),camlp5)
+CAMLP4EXTEND=pa_extend.cmo q_MLast.cmo pa_macro.cmo
+else
+CAMLP4EXTEND=
+endif
+PP?=-pp '$(CAMLP4O) -I $(CAMLLIB) $(COQSRCLIBS) compat5.cmo \
+  $(CAMLP4EXTEND) $(GRAMMARS) $(CAMLP4OPTIONS) -impl'
 
 ##################
 #                #
@@ -91,7 +134,9 @@ endif
 #                    #
 ######################
 
-VFILES:=src/amd64/program.v\
+VFILES:=src/amd64/plugin.v\
+  src/extraction.v\
+  src/amd64/program.v\
   src/amd64/instrsyntax.v\
   src/amd64/instr.v\
   src/amd64/reg.v\
@@ -109,6 +154,7 @@ VFILES:=src/amd64/program.v\
 
 VO=vo
 VOFILES:=$(VFILES:.v=.$(VO))
+VOFILESINC=$(filter $(wildcard src/*),$(VOFILES)) 
 VOFILES1=$(patsubst src/%,%,$(filter src/%,$(VOFILES)))
 GLOBFILES:=$(VFILES:.v=.glob)
 GFILES:=$(VFILES:.v=.g)
@@ -126,7 +172,8 @@ endif
 #                                     #
 #######################################
 
-all: $(VOFILES) 
+all: $(VOFILES) $(CMOFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) src/printinstr.cmxs\
+  src/printinstr.cmo
 
 quick:
 	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) all VO=vi
@@ -164,7 +211,23 @@ beautify: $(VFILES:=.beautified)
 	@echo 'Do not do "make clean" until you are sure that everything went well!'
 	@echo 'If there were a problem, execute "for file in $$(find . -name \*.v.old -print); do mv $${file} $${file%.old}; done" in your shell/'
 
-.PHONY: all opt byte archclean clean install uninstall_me.sh uninstall userinstall depend html validate
+.PHONY: all opt byte archclean clean install uninstall_me.sh uninstall userinstall depend html validate install install-plugin
+
+###################
+#                 #
+# Custom targets. #
+#                 #
+###################
+
+install: install-plugin
+
+install-plugin: 
+	make -C extraction install
+
+src/printinstr.cmxs: src/printinstr.cmo
+
+src/printinstr.cmo: src/extraction.vo src/printinstr.ml
+	make -C extraction
 
 ####################
 #                  #
@@ -186,6 +249,9 @@ install:
 	 install -d "`dirname "$(DSTROOT)"$(COQLIBINSTALL)/Amd64/$$i`"; \
 	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/Amd64/$$i; \
 	done
+	for i in $(VOFILESINC); do \
+	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/Amd64/`basename $$i`; \
+	done
 
 install-doc:
 	install -d "$(DSTROOT)"$(COQDOCINSTALL)/Amd64/html
@@ -195,7 +261,7 @@ install-doc:
 
 uninstall_me.sh:
 	echo '#!/bin/sh' > $@ 
-	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Amd64 && rm -f $(VOFILES1) && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Amd64" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
+	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Amd64 && rm -f $(VOFILES1) && \\\nfor i in $(VOFILESINC); do rm -f "`basename "$$i"`"; done && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Amd64" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL)/Amd64 \\\n' >> "$@"
 	printf '&& rm -f $(shell find "html" -maxdepth 1 -and -type f -print)\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL) && find Amd64/html -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
@@ -205,9 +271,14 @@ uninstall: uninstall_me.sh
 	sh $<
 
 clean:
+	rm -f $(ALLCMOFILES) $(CMIFILES) $(CMAFILES)
+	rm -f $(ALLCMOFILES:.cmo=.cmx) $(CMXAFILES) $(CMXSFILES) $(ALLCMOFILES:.cmo=.o) $(CMXAFILES:.cmxa=.a)
+	rm -f $(addsuffix .d,$(MLFILES) $(MLIFILES) $(ML4FILES) $(MLLIBFILES) $(MLPACKFILES))
 	rm -f $(VOFILES) $(VOFILES:.vo=.vi) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
 	- rm -rf html mlihtml uninstall_me.sh
+	- rm -rf src/printinstr.cmxs
+	- rm -rf src/printinstr.cmo
 
 archclean:
 	rm -f *.cmx *.o
@@ -231,6 +302,21 @@ Makefile: Make
 # Implicit rules. #
 #                 #
 ###################
+
+$(MLFILES:.ml=.cmo): %.cmo: %.ml
+	$(CAMLC) $(ZDEBUG) $(ZFLAGS) $<
+
+$(filter-out $(addsuffix .cmx,$(foreach lib,$(MLPACKFILES:.mlpack=_MLPACK_DEPENDENCIES),$($(lib)))),$(MLFILES:.ml=.cmx)): %.cmx: %.ml
+	$(CAMLOPTC) $(ZDEBUG) $(ZFLAGS) $<
+
+$(addsuffix .d,$(MLFILES)): %.ml.d: %.ml
+	$(OCAMLDEP) -slash $(OCAMLLIBS) "$<" > "$@" || ( RV=$$?; rm -f "$@"; exit $${RV} )
+
+$(filter-out $(MLLIBFILES:.mllib=.cmxs),$(MLFILES:.ml=.cmxs) $(ML4FILES:.ml4=.cmxs) $(MLPACKFILES:.mlpack=.cmxs)): %.cmxs: %.cmx
+	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -shared -o $@ $<
+
+$(MLLIBFILES:.mllib=.cmxs): %.cmxs: %.cmxa
+	$(CAMLOPTLINK) $(ZDEBUG) $(ZFLAGS) -linkall -shared -o $@ $<
 
 $(VOFILES): %.vo: %.v
 	$(COQC) $(COQDEBUG) $(COQFLAGS) $*
