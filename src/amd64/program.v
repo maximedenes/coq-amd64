@@ -11,7 +11,10 @@ Inductive program :=
 | prog_skip | prog_seq (p1 p2: program)
 | prog_declabel (body: DWORD -> program)
 | prog_label (l: DWORD)
-| prog_data {T} {R: Reader T} {W: Writer T} (v: T).
+| prog_data {T} {R: Reader T} {W: Writer T} (v: T)
+(* Directives for assembler that we don't support directly, ignored when
+* encoding *)
+| prog_directive (s : string).
 Coercion prog_instr: Instr >-> program.
 (*=End *)
 

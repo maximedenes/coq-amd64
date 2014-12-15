@@ -139,15 +139,25 @@ let print_data oc d =
   | 64 -> fprintf oc ".quad %a" print_qword d
   | _ -> assert false
 
-let print_label oc lbl =
-  fprintf oc ".L%i" (toZ 31 lbl)
+let camlstring_of_coqstring (s: char list) =
+  let r = String.create (List.length s) in
+  let rec fill pos = function
+    | [] -> r
+            | c :: s -> r.[pos] <- c; fill (pos + 1) s
+  in fill 0 s
 
-let print_memspec oc = function
+let print_label symb oc lbl =
+  let i = toZ 31 lbl in
+  if i < List.length symb then
+    fprintf oc "%s" (camlstring_of_coqstring (List.nth symb i))
+  else fprintf oc ".L%i" i
+
+let print_memspec symb oc = function
 | Coq_mkMemSpec ((Some base,None),off) ->
-    let print_off = if base = RIP then print_label else print_dword in
+    let print_off = if base = RIP then print_label symb else print_dword in
     fprintf oc "%a(%a)" (print_option print_off) off print_reg base
 | Coq_mkMemSpec ((obase,Some (index,scale)),off) ->
-   let print_off = if obase = Some RIP then print_label else print_dword in
+   let print_off = if obase = Some RIP then print_label symb else print_dword in
    fprintf oc "%a(%a,%a,%a)" (print_option print_off) off
      (print_option print_reg) obase print_gpreg index print_scale scale
 | _ -> assert false
@@ -170,24 +180,24 @@ let print_xmmreg oc = function
 | YMM14 -> fprintf oc "XMM14"
 | YMM15 -> fprintf oc "XMM15"
 
-let print_dstsrc size oc = function
+let print_dstsrc symb size oc = function
 | DstSrcRR (dst,src) -> fprintf oc "%a, %a" (print_gpVReg size) src (print_gpVReg size) dst
-| DstSrcRM (dst,src) -> fprintf oc "%a, %a" print_memspec src (print_gpVReg size) dst
-| DstSrcMR (dst,src) -> fprintf oc "%a, %a" (print_gpVReg size) src print_memspec dst
+| DstSrcRM (dst,src) -> fprintf oc "%a, %a" (print_memspec symb) src (print_gpVReg size) dst
+| DstSrcMR (dst,src) -> fprintf oc "%a, %a" (print_gpVReg size) src (print_memspec symb) dst
 | DstSrcRI (dst,src) -> fprintf oc "%a, %a" (print_vword size) src (print_gpVReg size) dst
-| DstSrcMI (dst,src) -> fprintf oc "%a, %a" (print_vword size) src print_memspec dst
+| DstSrcMI (dst,src) -> fprintf oc "%a, %a" (print_vword size) src (print_memspec symb) dst
 
-let print_regmem size oc = function
+let print_regmem symb size oc = function
 | RegMemR r -> print_gpVReg size oc r
-| RegMemM ms -> print_memspec oc ms
+| RegMemM ms -> (print_memspec symb) oc ms
 
 let print_regimm size oc = function
 | RegImmI w -> print_vword size oc w
 | RegImmR r -> print_gpVReg size oc r
 
-let print_xmmdstsrc oc = function
-| XMMDstSrcXRM (r,rm) -> fprintf oc "%a, %a" (print_regmem OpSize8) rm print_xmmreg r
-| XMMDstSrcRMX (rm,r) -> fprintf oc "%a, %a" print_xmmreg r (print_regmem OpSize8) rm
+let print_xmmdstsrc symb oc = function
+| XMMDstSrcXRM (r,rm) -> fprintf oc "%a, %a" (print_regmem symb OpSize8) rm print_xmmreg r
+| XMMDstSrcRMX (rm,r) -> fprintf oc "%a, %a" print_xmmreg r (print_regmem symb OpSize8) rm
 
 let print_jump_condition oc = function
 | CC_O -> fprintf oc "o"
@@ -202,44 +212,44 @@ let print_jump_condition oc = function
 let print_negation oc b =
   if b then () else fprintf oc "n"
 
-let print_jump_tgt oc = function
-| JmpTgtI w -> print_label oc w
-| JmpTgtM ms -> print_memspec oc ms
+let print_jump_tgt symb oc = function
+| JmpTgtI w -> print_label symb oc w
+| JmpTgtM ms -> print_memspec symb oc ms
 | JmpTgtR r -> print_reg oc r
 
-let print_instr oc = function
+let print_instr symb oc = function
 | UOP (size,op,regmem) ->
-    fprintf oc "%a%a %a" print_uop op print_opsize size (print_regmem size) regmem
+    fprintf oc "%a%a %a" print_uop op print_opsize size (print_regmem symb size) regmem
 | BOP (size,op,dstsrc) ->
-    fprintf oc "%a%a %a" print_bop op print_opsize size (print_dstsrc size) dstsrc
+    fprintf oc "%a%a %a" print_bop op print_opsize size (print_dstsrc symb size) dstsrc
 | BITOP _ -> assert false (* coq_BitOp * regmem * (gpReg, coq_BYTE) sum *)
 | TESTOP (size,dst,src) ->
-    fprintf oc "test%a %a, %a" print_opsize size (print_regimm size) src (print_regmem size) dst
+    fprintf oc "test%a %a, %a" print_opsize size (print_regimm size) src (print_regmem symb size) dst
 | MOVOP (size,dstsrc) ->
-    fprintf oc "mov%a %a" print_opsize size (print_dstsrc size) dstsrc
+    fprintf oc "mov%a %a" print_opsize size (print_dstsrc symb size) dstsrc
 | MOVABS (dst,w) -> fprintf oc "movabsq %a, %a" print_qword w print_gpreg dst
 | MOVX (b,size,dst,src) ->
    if b then assert false else
-     fprintf oc "movzb%a %a, %a" print_opsize size (print_regmem size) src print_gpreg dst
-| MOVQ dstsrc -> fprintf oc "movabsq %a" print_xmmdstsrc dstsrc
+     fprintf oc "movzb%a %a, %a" print_opsize size (print_regmem symb size) src print_gpreg dst
+| MOVQ dstsrc -> fprintf oc "movabsq %a" (print_xmmdstsrc symb) dstsrc
 | SHIFTOP (size,op,dst,count) -> assert false (* opsize * coq_ShiftOp * regmem * coq_ShiftCount *)
-| MUL (size, dst) -> fprintf oc "mul%a %a" print_opsize size (print_regmem size) dst
-| IMUL (size, dst, src) -> fprintf oc "imul%a %a, %a" print_opsize size (print_regmem size) src (print_gpVReg size) dst
+| MUL (size, dst) -> fprintf oc "mul%a %a" print_opsize size (print_regmem symb size) dst
+| IMUL (size, dst, src) -> fprintf oc "imul%a %a, %a" print_opsize size (print_regmem symb size) src (print_gpVReg size) dst
 | IMULimm (size, dst, src1, src2) ->
-   fprintf oc "imul%a %a, %a, %a" print_opsize size (print_vword size) src2 (print_regmem size) src1 (print_gpVReg size) dst
-| IDIV (size,dst) -> fprintf oc "idiv%a %a" print_opsize size (print_regmem size) dst
-| LEA (dst,src) -> fprintf oc "leaq %a, %a" (print_regmem OpSize8) src print_gpreg dst
+   fprintf oc "imul%a %a, %a, %a" print_opsize size (print_vword size) src2 (print_regmem symb size) src1 (print_gpVReg size) dst
+| IDIV (size,dst) -> fprintf oc "idiv%a %a" print_opsize size (print_regmem symb size) dst
+| LEA (dst,src) -> fprintf oc "leaq %a, %a" (print_regmem symb OpSize8) src print_gpreg dst
 | XCHG (size,dst,src) ->
-    fprintf oc "xchg%a %a, %a" print_opsize size (print_regmem size) src
+    fprintf oc "xchg%a %a, %a" print_opsize size (print_regmem symb size) src
      (print_gpVReg size) dst
 | JCCrel (c,b,tgt) ->
     fprintf oc "j%a%a %a" print_jump_condition c print_negation b
-      print_label tgt
+      (print_label symb) tgt
 | SET (c,b,dst) -> fprintf oc "set%a%a %a" print_jump_condition c print_negation b print_gpreg_byte dst
 | PUSH src -> assert false
 | POP dst -> assert false (* regmem *)
-| CALLrel tgt -> fprintf oc "call %a" print_jump_tgt tgt
-| JMPrel tgt -> fprintf oc "jmp %a" print_jump_tgt tgt
+| CALLrel tgt -> fprintf oc "call %a" (print_jump_tgt symb) tgt
+| JMPrel tgt -> fprintf oc "jmp %a" (print_jump_tgt symb) tgt
 | RETOP w -> fprintf oc "ret %a" print_word w (* TODO: specialize *)
 | CQO -> fprintf oc "cqto"
 | HLT
@@ -247,14 +257,17 @@ let print_instr oc = function
 | ENCLS
 | BADINSTR -> fprintf oc "badinstr"
 
-
-let rec print_program oc = function
-| Coq_prog_instr i -> print_instr oc i
+let rec print_program symb oc = function
+| Coq_prog_instr i -> print_instr symb oc i
 | Coq_prog_skip -> ()
-| Coq_prog_seq (p1,p2) -> fprintf oc "%a\n%a" print_program p1 print_program p2
-| Coq_prog_declabel f -> print_program oc (f (fromNat 32 0))
-| Coq_prog_label w -> fprintf oc "%a:" print_label w
+| Coq_prog_seq (p1,p2) -> fprintf oc "%a\n%a" (print_program symb) p1 (print_program symb) p2
+| Coq_prog_declabel f -> print_program symb oc (f (fromNat 32 0))
+| Coq_prog_label w -> fprintf oc "%a:" (print_label symb) w
 | Coq_prog_data (_,_,data) -> print_data oc (Obj.magic data)
+| Coq_prog_directive s -> fprintf oc ".%s" (camlstring_of_coqstring s)
 
-let _ = OcamlbindState.register_fun "print_program" (Obj.magic (print_program
-stdout))
+let print_program_with_symb oc (symb,prog) =
+  print_program symb oc prog
+
+let _ = OcamlbindState.register_fun "print_program"
+  (Obj.magic (print_program_with_symb stdout))

@@ -172,8 +172,8 @@ endif
 #                                     #
 #######################################
 
-all: $(VOFILES) $(CMOFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) src/printinstr.cmxs\
-  src/printinstr.cmo
+all: $(VOFILES) $(CMOFILES) $(if $(HASNATDYNLINK_OR_EMPTY),$(CMXSFILES)) src/printasm.cmxs\
+  src/printasm.cmo
 
 quick:
 	$(MAKE) -f $(firstword $(MAKEFILE_LIST)) all VO=vi
@@ -224,9 +224,9 @@ install: install-plugin
 install-plugin: 
 	make -C extraction install
 
-src/printinstr.cmxs: src/printinstr.cmo
+src/printasm.cmxs: src/printasm.cmo
 
-src/printinstr.cmo: src/extraction.vo src/printinstr.ml
+src/printasm.cmo: src/extraction.vo src/printasm.ml
 	make -C extraction
 
 ####################
@@ -277,8 +277,8 @@ clean:
 	rm -f $(VOFILES) $(VOFILES:.vo=.vi) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
 	- rm -rf html mlihtml uninstall_me.sh
-	- rm -rf src/printinstr.cmxs
-	- rm -rf src/printinstr.cmo
+	- rm -rf src/printasm.cmxs
+	- rm -rf src/printasm.cmo
 
 archclean:
 	rm -f *.cmx *.o

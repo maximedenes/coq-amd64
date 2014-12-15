@@ -1,7 +1,7 @@
 -I src
 -R src Amd64
--extra src/printinstr.cmo "src/extraction.vo src/printinstr.ml" "make -C extraction"
--extra src/printinstr.cmxs src/printinstr.cmo ""
+-extra src/printasm.cmo "src/extraction.vo src/printasm.ml" "make -C extraction"
+-extra src/printasm.cmxs src/printasm.cmo ""
 -extra-phony install-plugin "" "make -C extraction install"
 -extra-phony install install-plugin ""
 src/bitsrep.v
