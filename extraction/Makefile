@@ -33,14 +33,15 @@ CMO=$(CMX:.cmx=.cmo)
 PLUGIN=../src/printinstr.cmxs
 
 $(PLUGIN): $(CMX) $(CMO)
-	$(OCAMLOPT) -linkall -shared -o $(PLUGIN) $(LIBS) $(CMX)
+	$(OCAMLOPT) -pack -o amd64.cmx $(LIBS) $(CMX)
+	$(OCAMLOPT) -linkall -shared -o $(PLUGIN) amd64.cmx
 
 .SUFFIXES: .ml .mli .cmo .cmx .cmi
 
 .mli.cmi:
-	$(OCAMLOPT) -c $*.mli
+	$(OCAMLOPT) -for-pack Amd64 -c $*.mli
 .ml.cmx:
-	$(OCAMLOPT) -c $*.ml
+	$(OCAMLOPT) -for-pack Amd64 -c $*.ml
 .ml.cmo:
 	$(OCAMLC) -c $*.ml
 
