@@ -34,15 +34,19 @@ _start:
         # [RAX][RSI*1] = 00.110.000 = 30
         # [RAX][RPI*1] = 00.111.000 = 38
         LEA RAX, [RAX][RAX*1]
+        LEA RAX, [RAX][R8*1]               
         LEA RAX, [RAX][RCX*1]
         LEA RAX, [RAX][RDX*1]
         LEA RAX, [RAX][RBX*1]
         LEA RAX, [RAX][RBP*1]
         LEA RAX, [RAX][RSI*1]
-        LEA RAX, [RAX][RDI*1]               
+        LEA RAX, [RAX][RDI*1]
         # Invalid: [RAX][RSP*1] = 00.100.000 = 20
-        # (..)
-        # Codes: [RAX][0*1] ~ [RAX]
+        # But we can address R12:
+        LEA RAX, [RAX][R12*1]
+        
+        # 00.100.000 = 20 codes:
+        #  [RAX][0*1] ~ [RAX]
         
         # For all registers, gas will directly code reg1,[reg2] 
 	# through the reg/mem, at the exception of reg1,[RSP] (which
