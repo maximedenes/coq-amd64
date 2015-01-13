@@ -65,7 +65,7 @@ Definition joinlsb {n} (pair: BITS n*bool) : BITS n.+1 := [tuple of pair.2 :: pa
 
 (* Destruction *)
 Definition splitlsb {n} (p: BITS n.+1): BITS n*bool := ([tuple of behead p], thead p).
-Definition droplsb {n} (p: BITS n.+1) := (splitlsb p).1.
+Definition droplsb {n} (p: BITS n.+1): BITS n := (splitlsb p).1.
 
 (*---------------------------------------------------------------------------
     Conversion to and from natural numbers.

@@ -13,13 +13,12 @@ Set Implicit Arguments.
 Unset Strict Implicit.
 Import Prenex Implicits.
 
-(* Our BITS codec is msb first *)
+(* CAREFUL: Our BITS codec is msb first *)
 Definition BITScast n : CAST (BITS n * bool) (BITS n.+1).
 Proof.
-  admit.
-  (*
-  apply: MakeCast (fun p => cons_tuple p.2 p.1) (fun d => Some (splitlsb d)) _.
-move => t y [<-]. by rewrite /splitlsb/= {3}(tuple_eta t). *)
+  apply: MakeCast (fun p:BITS n * bool => [tuple of p.2 :: p.1])
+                  (fun d => Some (splitlsb d)) _.
+  move => t y [<-] /=; rewrite /splitlsb/= -tuple_eta //.
 Defined.
 
 Fixpoint bitsCodec n : Codec (BITS n) :=
@@ -30,14 +29,12 @@ Fixpoint bitsCodec n : Codec (BITS n) :=
 Hint Resolve totalCast totalEmp totalSeq totalAny totalSym totalConstSeq.
 
 Lemma totalBITS n : total (bitsCodec n).
-Proof. admit.
-(*
-       induction n => //=.
+Proof.
+  induction n => //=.
 apply totalCast. apply totalEmp.
 move => c. by rewrite (tuple0 c).
 apply totalCast. apply totalSeq. apply IHn. apply totalAny.
 done.
-*)
 Qed.
 
 Definition BYTECodec: Codec BYTE := bitsCodec 8.
@@ -49,7 +46,7 @@ Proof. apply: MakeCast
   (fun p => let: (b0,b1,b2,b3) := p in b3 ## b2 ## b1 ## b0)
   (fun d => let: (b3,b2,b1,b0) := split4 8 8 8 8 d in Some(b0,b1,b2,b3)) _.
 move => d [[[b0 b1] b2] b3]. case E: (split4 8 8 8 8 d) => [[[b0' b1'] b2'] b3'].
-move => [<- <- <- <-]. admit. (* by rewrite -(split4eta d) E. *)
+move => [<- <- <- <-]. admit. (*by rewrite -(split4eta d) E.*)
 Defined.
 
 (* Little-endian DWORDs *)

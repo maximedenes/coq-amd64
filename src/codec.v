@@ -1023,6 +1023,7 @@ apply codecToFiniteBitReaderComplete => //. by apply encSound. Qed.
 Example ex : Codec bool :=
     Sym false .$ Sym true  ~~> unConst false
 ||| Sym true  .$ Sym false ~~> unConst true.
+*)
 
 (*======================================================================================
   Executable decoder function; assume that all uses of Alt are non-ambiguous
@@ -1073,6 +1074,7 @@ match c with
   DecNo
 end.
 
+(*
 (* Soundness applies regardless of determinism or prefix-free-ness *)
 Lemma decSound t (c: Codec t) :
   forall l x rest, dec c l = DecYes x rest ->
