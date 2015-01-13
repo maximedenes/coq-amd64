@@ -42,6 +42,7 @@ _start:
         LEA RAX, [RAX][RSI*1]
         LEA RAX, [RAX][RDI*1]
         # Invalid: [RAX][RSP*1] = 00.100.000 = 20
+        # LEA RAX, [RAX][RSP*1] 
         # But we can address R12:
         LEA RAX, [RAX][R12*1]
         
