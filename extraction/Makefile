@@ -21,8 +21,8 @@ OCAMLLEX=ocamllex
 
 LIBS=
 
-CMX=Bool.cmx Ascii.cmx Datatypes.cmx Nat.cmx String0.cmx \
-	BinPosDef.cmx BinPos.cmx BinNat.cmx BinInt.cmx \
+CMX=Ascii.cmx Datatypes.cmx Nat.cmx String0.cmx \
+	BinPos.cmx BinInt.cmx \
     ssrbool.cmx ssrnat.cmx seq.cmx eqtype.cmx fintype.cmx \
 	tuple.cmx bitsrep.cmx \
 	bitsops.cmx monad.cmx reader.cmx writer.cmx \
