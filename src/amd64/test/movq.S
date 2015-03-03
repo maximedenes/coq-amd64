@@ -7,6 +7,8 @@ _start:
         # Operand1: ModRM:reg (w)
         # Operand2: ModRM:r/m (r)
         MOVQ XMM0, XMM1
+        MOVQ XMM0, XMM9
+        MOVQ XMM8, XMM1
         MOVQ XMM0, [RAX]
 
         # MOVQ xmm2/m64,xmm1
