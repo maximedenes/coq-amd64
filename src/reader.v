@@ -153,7 +153,7 @@ Instance readVWORD s : Reader (VWORD s) | 1 :=
   | OpSize1 => readBYTE
   | OpSize2 => readWORD
   | OpSize4 => readDWORD
-  | OpSize8 => readDWORD
+  | OpSize8 => readQWORD
   end.
 
 Fixpoint readPad (n:nat) : Reader unit :=

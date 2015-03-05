@@ -44,11 +44,11 @@ Definition NIBBLE := BITS n4.
 (* In 64-bit mode, immediates are 32-bit long. *)
 Inductive opsize := OpSize1 | OpSize2 | OpSize4 | OpSize8. 
 Definition VWORD s := 
-  BITS (match s with OpSize1 => n8 | OpSize2 => n16 | OpSize4 => n32 | OpSize8 => n32 end).
+  BITS (match s with OpSize1 => n8 | OpSize2 => n16 | OpSize4 => n32 | OpSize8 => n64 end).
 Definition BYTE   := VWORD OpSize1.
 Definition WORD   := VWORD OpSize2.
 Definition DWORD  := VWORD OpSize4.
-Definition QWORD  := BITS n64.
+Definition QWORD  := VWORD OpSize8.
 (*=End *)
 
 Identity Coercion VWORDtoBITS : VWORD >-> BITS.
