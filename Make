@@ -21,6 +21,8 @@ src/amd64/instr.v
 src/amd64/encdechelp.v
 src/amd64/instrcodec.v
 src/amd64/instrsyntax.v
+src/amd64/test/assembler.v
+src/amd64/test/mov.v
 src/amd64/program.v
 src/extraction.v
 src/amd64/plugin.v

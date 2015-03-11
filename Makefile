@@ -40,10 +40,6 @@ TIMECMD=
 STDTIME?=/usr/bin/time -f "$* (user: %U mem: %M ko)"
 TIMER=$(if $(TIMED), $(STDTIME), $(TIMECMD))
 
-vo_to_obj = $(addsuffix .o,\
-  $(filter-out Warning: Error:,\
-  $(shell $(COQBIN)coqtop -q -noinit -batch -quiet -print-mod-uid $(1))))
-
 ##########################
 #                        #
 # Libraries definitions. #
@@ -76,7 +72,7 @@ COQCHK?="$(COQBIN)coqchk"
 COQMKTOP?="$(COQBIN)coqmktop"
 
 COQSRCLIBS?=-I "$(COQLIB)kernel" -I "$(COQLIB)lib" \
-  -I "$(COQLIB)library" -I "$(COQLIB)parsing" -I "$(COQLIB)engine" -I "$(COQLIB)pretyping" \
+  -I "$(COQLIB)library" -I "$(COQLIB)parsing" -I "$(COQLIB)pretyping" \
   -I "$(COQLIB)interp" -I "$(COQLIB)printing" -I "$(COQLIB)intf" \
   -I "$(COQLIB)proofs" -I "$(COQLIB)tactics" -I "$(COQLIB)tools" \
   -I "$(COQLIB)toplevel" -I "$(COQLIB)stm" -I "$(COQLIB)grammar" \
@@ -138,6 +134,8 @@ endif
 VFILES:=src/amd64/plugin.v\
   src/extraction.v\
   src/amd64/program.v\
+  src/amd64/test/mov.v\
+  src/amd64/test/assembler.v\
   src/amd64/instrsyntax.v\
   src/amd64/instrcodec.v\
   src/amd64/encdechelp.v\
@@ -167,11 +165,6 @@ GLOBFILES:=$(VFILES:.v=.glob)
 GFILES:=$(VFILES:.v=.g)
 HTMLFILES:=$(VFILES:.v=.html)
 GHTMLFILES:=$(VFILES:.v=.g.html)
-OBJFILES=$(call vo_to_obj,$(VOFILES))
-ALLNATIVEFILES=$(OBJFILES:.o=.cmi) $(OBJFILES:.o=.cmo) $(OBJFILES:.o=.cmx) $(OBJFILES:.o=.cmxs)
-NATIVEFILES=$(foreach f, $(ALLNATIVEFILES), $(wildcard $f))
-NATIVEFILESINC=$(filter $(wildcard src/*),$(NATIVEFILES)) 
-NATIVEFILES1=$(patsubst src/%,%,$(filter src/%,$(NATIVEFILES)))
 ifeq '$(HASNATDYNLINK)' 'true'
 HASNATDYNLINK_OR_EMPTY := yes
 else
@@ -223,7 +216,7 @@ beautify: $(VFILES:=.beautified)
 	@echo 'Do not do "make clean" until you are sure that everything went well!'
 	@echo 'If there were a problem, execute "for file in $$(find . -name \*.v.old -print); do mv $${file} $${file%.old}; done" in your shell/'
 
-.PHONY: all archclean beautify byte clean gallina gallinahtml html install install-doc install-natdynlink install-toploop opt printenv quick uninstall userinstall validate vio2vo install install-plugin
+.PHONY: all opt byte archclean clean install uninstall_me.sh uninstall userinstall depend html validate install install-plugin
 
 ###################
 #                 #
@@ -257,11 +250,11 @@ userinstall:
 	+$(MAKE) USERINSTALL=true install
 
 install:
-	cd "src" && for i in $(NATIVEFILES1) $(GLOBFILES1) $(VFILES1) $(VOFILES1); do \
+	cd "src" && for i in $(VOFILES1); do \
 	 install -d "`dirname "$(DSTROOT)"$(COQLIBINSTALL)/Amd64/$$i`"; \
 	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/Amd64/$$i; \
 	done
-	for i in $(NATIVEFILESINC) $(GLOBFILESINC) $(VFILESINC) $(VOFILESINC); do \
+	for i in $(VOFILESINC); do \
 	 install -m 0644 $$i "$(DSTROOT)"$(COQLIBINSTALL)/Amd64/`basename $$i`; \
 	done
 
@@ -271,9 +264,9 @@ install-doc:
 	 install -m 0644 $$i "$(DSTROOT)"$(COQDOCINSTALL)/Amd64/$$i;\
 	done
 
-uninstall_me.sh: Makefile
+uninstall_me.sh:
 	echo '#!/bin/sh' > $@ 
-	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Amd64 && rm -f $(NATIVEFILES1) $(GLOBFILES1) $(VFILES1) $(VOFILES1) && \\\nfor i in $(NATIVEFILESINC) $(GLOBFILESINC) $(VFILESINC) $(VOFILESINC); do rm -f "`basename "$$i"`"; done && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Amd64" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
+	printf 'cd "$${DSTROOT}"$(COQLIBINSTALL)/Amd64 && rm -f $(VOFILES1) && \\\nfor i in $(VOFILESINC); do rm -f "`basename "$$i"`"; done && find . -type d -and -empty -delete\ncd "$${DSTROOT}"$(COQLIBINSTALL) && find "Amd64" -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL)/Amd64 \\\n' >> "$@"
 	printf '&& rm -f $(shell find "html" -maxdepth 1 -and -type f -print)\n' >> "$@"
 	printf 'cd "$${DSTROOT}"$(COQDOCINSTALL) && find Amd64/html -maxdepth 0 -and -empty -exec rmdir -p \{\} \;\n' >> "$@"
@@ -282,18 +275,17 @@ uninstall_me.sh: Makefile
 uninstall: uninstall_me.sh
 	sh $<
 
-clean::
+clean:
 	rm -f $(ALLCMOFILES) $(CMIFILES) $(CMAFILES)
 	rm -f $(ALLCMOFILES:.cmo=.cmx) $(CMXAFILES) $(CMXSFILES) $(ALLCMOFILES:.cmo=.o) $(CMXAFILES:.cmxa=.a)
 	rm -f $(addsuffix .d,$(MLFILES) $(MLIFILES) $(ML4FILES) $(MLLIBFILES) $(MLPACKFILES))
-	rm -f $(OBJFILES) $(OBJFILES:.o=.native) $(NATIVEFILES)
 	rm -f $(VOFILES) $(VOFILES:.vo=.vio) $(GFILES) $(VFILES:.v=.v.d) $(VFILES:=.beautified) $(VFILES:=.old)
 	rm -f all.ps all-gal.ps all.pdf all-gal.pdf all.glob $(VFILES:.v=.glob) $(VFILES:.v=.tex) $(VFILES:.v=.g.tex) all-mli.tex
 	- rm -rf html mlihtml uninstall_me.sh
 	- rm -rf src/printasm.cmxs
 	- rm -rf src/printasm.cmo
 
-archclean::
+archclean:
 	rm -f *.cmx *.o
 
 printenv:
