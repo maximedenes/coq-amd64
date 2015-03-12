@@ -178,14 +178,16 @@ Notation "'[' i '*' '8' '+' n ']'" :=
 Notation "'[' 'RIP' '+' n ']'" :=
   (RIPrel (n: DWORD)).
 
+
 Example exMemSpec1 := [RBX]%ms.
-Example exMemSpec2 := [RBP]%ms.
-Example exMemSpec6 := [RIP+213]%ms.
+(* Non-example: we cannot address memory through a 32-bit (or less) register: 
+Example exMemSpec2 := [EBP]%ms.
+*)
 Example exMemSpec3 := [R10+R12*4+12]%ms.
-
-
+Example exMemSpec6 := [RIP+213]%ms.
 Open Scope instr_scope.
 
+Bind Scope memspec_scope with memspec.
 
 Inductive InstrArg :=
 | InstrArgR s :> gpVReg s -> InstrArg
@@ -206,6 +208,10 @@ Notation "'NOT' x"
   := (UOP _ OP_NOT x%ms) (x at level 55, at level 60) : instr_scope.
 Notation "'NOT' 'BYTE' m"
   := (UOP OpSize1 OP_NOT (RegMemM OpSize1 m%ms)) (m at level 55, at level 60) : instr_scope.
+
+Example exNOT3 := NOT EAX. 
+Example exNOT2 := NOT [RBX+RCX*4+9].
+
 Notation "'NEG' x"
   := (UOP _ OP_NEG x%ms) (x at level 55, at level 60) : instr_scope.
 Notation "'NEG' 'BYTE' m"
@@ -399,7 +405,7 @@ Notation "'RET' x" := (RETOP x) (at level 60, x at level 55, format "'RET' x") :
 Definition NOP := XCHG OpSize4 EAX (RegMemR OpSize4 EAX).
 
 Arguments PUSH (src)%ms.
-Arguments POP s (dst)%ms.
+Arguments POP [s] (dst)%ms.
 
 Notation "'SETA'"  := (SET CC_BE false) : instr_scope.
 Notation "'SETAE'" := (SET CC_B  false) : instr_scope.
@@ -435,20 +441,19 @@ Notation "'SETZ'"  := (SET CC_Z true)   : instr_scope.
 Declare Reduction showinstr := cbv beta delta -[fromNat makeMOV makeBOP] zeta iota.
 
 Module Examples.
+Open Scope memspec_scope.
 Open Scope instr_scope.
 
-(* TODO: Fix missing coercion
 Example ex1 := ADD EAX, [RBX + 3].
 Example ex2 := INC BYTE [RCX + RDI*4 + 78].
-Example ex3 (r:gpReg) := MOV EDI, [r].
-Example ex4 (a:DWORD) := MOV EDI, [a].
-Example ex5 (a:DWORD) := MOV EDI, a.
+Example ex3 (r:gpReg) := MOV RDI, [r].
+Example ex4 (a:DWORD) := MOV RDI, [a].
+Example ex5 (a:DWORD) := MOV RDI, a.
 Example ex6 (r:BYTELReg) := MOV AL, r.
 Example ex7 (r:gpReg) := POP [r + #x"0000001C"].
 Example ex8 := CMP AL, (#c"!":BYTE).
 Example ex9 := MOV DX, BP. 
 Example ex10 := NOT [RBX + RDI*4 + 3]. 
- *)
 
 Close Scope instr_scope.
 End Examples.

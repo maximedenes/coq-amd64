@@ -227,42 +227,37 @@ Definition vreg (s: opsize) :=
     | OpSize8 => reg
   end.
 
-(*
 Coercion RegToVReg (r: gpReg) : gpVReg OpSize8 := r.
 Coercion DWORDRegToVReg (r:DWORDReg) : vreg OpSize4 := r.
 Coercion WORDRegToVReg (r:WORDReg) : vreg OpSize2 := r.
 Coercion BYTELRegToVReg (r:BYTELReg) : vreg OpSize1 := r.
 Coercion AnyRegToVRegAny (r: reg) : vreg OpSize8 := r.
- *)
 
-Coercion nonSPVReg_to_vreg {s} : nonSPVReg s -> vreg s  := 
-  match s return nonSPVReg s -> vreg s with 
-    | OpSize1 => fun r =>
-                   match r with
-                     | mkNonSPReg8 r => mkGPReg8 (mkGPReg r)
-                   end
-    | OpSize2 => fun r =>
-                   match r with
-                     | mkNonSPReg16 r => mkReg16 (mkGPReg r)
-                   end
-    | OpSize4 => fun r =>
-                   match r with
-                     | mkNonSPReg32 r => mkReg32 (mkGPReg r)
-                   end
+
+Coercion Reg64_to_Reg (r:reg) : vreg OpSize8 := r.
+Coercion Reg32_to_Reg (r:DWORDReg) : vreg OpSize4 := r.
+Coercion Reg16_to_Reg (r:WORDReg) : vreg OpSize2 := r.
+Coercion Reg8_to_Reg (r:BYTELReg)   : vreg OpSize1 := r.
+
+Coercion GPReg64_to_GPReg (r:gpReg) : gpVReg OpSize8 := r.
+Coercion GPReg32_to_GPReg (r:gpReg32) : gpVReg OpSize4 := r.
+Coercion GPReg16_to_GPReg (r:gpReg16) : gpVReg OpSize2 := r.
+Coercion Reg8_to_GPReg (r:gpReg8) : gpVReg OpSize1 := r.
+
+
+Coercion nonSPVReg_to_gpVReg {s} : nonSPVReg s -> gpVReg s  := 
+  match s return nonSPVReg s -> gpVReg s with 
+    | OpSize1 => fun r => r
+    | OpSize2 => fun r => r 
+    | OpSize4 => fun r => r
     | OpSize8 => fun r => r
   end. 
 
 Coercion gpVReg_to_vreg {s} : gpVReg s -> vreg s  := 
   match s return gpVReg s -> vreg s with 
     | OpSize1 => fun r => r
-    | OpSize2 => fun r =>
-                   match r with
-                     | mkGPReg16 r => mkReg16 r
-                   end
-    | OpSize4 => fun r =>
-                   match r with
-                     | mkGPReg32 r => mkReg32 r
-                   end
+    | OpSize2 => fun r => r
+    | OpSize4 => fun r => r
     | OpSize8 => fun r => r
   end. 
 
