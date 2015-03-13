@@ -15,11 +15,15 @@ Fixpoint toHex (bs: list bool): string :=
   end.
 
 Definition asm (instr: Instr): option string :=
-  if enc InstrCodec instr is Some bs then Some (toHex bs)
+  (* TODO: Why the fuck do I have to reverse the list of bits? *)
+  if enc InstrCodec instr is Some bs then Some (toHex (rev bs))
   else None.
 
 Ltac check :=
-  compute; (try reflexivity);
   match goal with
-    | [ |- ?X = ?Y ] => (idtac "Failed with "; idtac X; admit)
+    | [ |- ?O = _ ] => 
+      compute; (try reflexivity);
+      match goal with
+        | [ |- ?X = ?Y ] => (idtac "Test "; idtac O; idtac "failed with "; idtac X; admit)
+      end
   end.
