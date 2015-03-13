@@ -17,3 +17,9 @@ Fixpoint toHex (bs: list bool): string :=
 Definition asm (instr: Instr): option string :=
   if enc InstrCodec instr is Some bs then Some (toHex bs)
   else None.
+
+Ltac check :=
+  compute; (try reflexivity);
+  match goal with
+    | [ |- ?X = ?Y ] => (idtac "Failed with "; idtac X; admit)
+  end.

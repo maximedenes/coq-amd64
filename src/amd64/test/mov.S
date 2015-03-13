@@ -53,7 +53,8 @@ _start:
         # https://sourceware.org/binutils/docs/as/i386_002dMemory.html#i386_002dMemory
         MOV RAX, [rip+data] # Incorrect, not in same segment
         MOV RAX, [rip+test]
-        MOV RAX, [rip+0x123]        
+        MOV RAX, [rip+0x123]
+        MOV RAX, [rip+0x12345678]        
 
         # Data segment adressing?
         
