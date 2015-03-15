@@ -134,7 +134,13 @@ endif
 VFILES:=src/amd64/plugin.v\
   src/extraction.v\
   src/amd64/program.v\
+  src/amd64/test/harness.v\
   src/amd64/test/mov.v\
+  src/amd64/test/imul.v\
+  src/amd64/test/idiv.v\
+  src/amd64/test/cqo.v\
+  src/amd64/test/call.v\
+  src/amd64/test/add.v\
   src/amd64/test/assembler.v\
   src/amd64/instrsyntax.v\
   src/amd64/instrcodec.v\

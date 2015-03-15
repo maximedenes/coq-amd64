@@ -6,7 +6,7 @@ _start:
         # CALL rel32
         # Opcode: E8
         # Operand: ModRM:r/m
-backward:       
+backward:
         CALL forward
         CALL backward
 
