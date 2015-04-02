@@ -12,7 +12,7 @@ else
   COQLIBINSTALL="${COQLIB}user-contrib"
 endif
 
-INCLUDES=-I $(COQLIB)user-contrib/OCamlBind
+INCLUDES=-I $(COQLIB)user-contrib/CoqFFI
 OCAMLC=ocamlc -rectypes -g $(INCLUDES)
 OCAMLOPT=ocamlopt -rectypes $(INCLUDES)
 OCAMLDEP=ocamldep
@@ -26,7 +26,8 @@ CMX=Ascii.cmx Datatypes.cmx Nat.cmx String0.cmx \
     ssrbool.cmx ssrnat.cmx seq.cmx eqtype.cmx fintype.cmx \
 	tuple.cmx bitsrep.cmx \
 	bitsops.cmx monad.cmx reader.cmx writer.cmx \
-    reg.cmx instr.cmx program.cmx ../src/printasm.cmx
+    reg.cmx instr.cmx program.cmx reifiable.cmx reify.cmx \
+	reification.cmx ../src/printasm.cmx
 
 CMO=$(CMX:.cmx=.cmo)
 
