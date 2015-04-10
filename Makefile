@@ -81,12 +81,12 @@ COQSRCLIBS?=-I "$(COQLIB)kernel" -I "$(COQLIB)lib" \
   -I "$(COQLIB)proofs" -I "$(COQLIB)tactics" -I "$(COQLIB)tools" \
   -I "$(COQLIB)toplevel" -I "$(COQLIB)stm" -I "$(COQLIB)grammar" \
   -I "$(COQLIB)config" \
+  -I "$(COQLIB)/plugins/Derive" \
   -I "$(COQLIB)/plugins/btauto" \
   -I "$(COQLIB)/plugins/cc" \
   -I "$(COQLIB)/plugins/decl_mode" \
   -I "$(COQLIB)/plugins/derive" \
   -I "$(COQLIB)/plugins/extraction" \
-  -I "$(COQLIB)/plugins/field" \
   -I "$(COQLIB)/plugins/firstorder" \
   -I "$(COQLIB)/plugins/fourier" \
   -I "$(COQLIB)/plugins/funind" \
@@ -94,11 +94,9 @@ COQSRCLIBS?=-I "$(COQLIB)kernel" -I "$(COQLIB)lib" \
   -I "$(COQLIB)/plugins/nsatz" \
   -I "$(COQLIB)/plugins/omega" \
   -I "$(COQLIB)/plugins/quote" \
-  -I "$(COQLIB)/plugins/ring" \
   -I "$(COQLIB)/plugins/romega" \
   -I "$(COQLIB)/plugins/rtauto" \
   -I "$(COQLIB)/plugins/setoid_ring" \
-  -I "$(COQLIB)/plugins/subtac" \
   -I "$(COQLIB)/plugins/syntax" \
   -I "$(COQLIB)/plugins/xml"
 ZFLAGS=$(OCAMLLIBS) $(COQSRCLIBS) -I $(CAMLP4LIB)
@@ -111,7 +109,7 @@ GRAMMARS?=grammar.cma
 ifeq ($(CAMLP4),camlp5)
 CAMLP4EXTEND=pa_extend.cmo q_MLast.cmo pa_macro.cmo unix.cma threads.cma
 else
-CAMLP4EXTEND=
+CAMLP4EXTEND=threads.cma
 endif
 PP?=-pp '$(CAMLP4O) -I $(CAMLLIB) -I $(CAMLLIB)threads/ $(COQSRCLIBS) compat5.cmo \
   $(CAMLP4EXTEND) $(GRAMMARS) $(CAMLP4OPTIONS) -impl'
@@ -221,13 +219,18 @@ beautify: $(VFILES:=.beautified)
 	@echo 'Do not do "make clean" until you are sure that everything went well!'
 	@echo 'If there were a problem, execute "for file in $$(find . -name \*.v.old -print); do mv $${file} $${file%.old}; done" in your shell/'
 
-.PHONY: all archclean beautify byte clean cleanall gallina gallinahtml html install install-doc install-natdynlink install-toploop opt printenv quick uninstall userinstall validate vio2vo install install-plugin
+.PHONY: all archclean beautify byte clean cleanall gallina gallinahtml html install install-doc install-natdynlink install-toploop opt printenv quick uninstall userinstall validate vio2vo clean clean-plugin install install-plugin
 
 ###################
 #                 #
 # Custom targets. #
 #                 #
 ###################
+
+clean:: clean-plugin
+
+clean-plugin: 
+	make -C extraction clean
 
 install: install-plugin
 

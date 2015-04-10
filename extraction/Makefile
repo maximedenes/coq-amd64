@@ -56,7 +56,7 @@ install:
 	done
 
 clean:
-	rm -f $(GENERATED) $(PLUGIN) *.cm*
+	rm -f $(GENERATED) $(CMX) $(CMO) $(PLUGIN) *.cm*
 
 .depend:
 	$(OCAMLDEP) *.ml > .depend

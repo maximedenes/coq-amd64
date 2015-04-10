@@ -4,6 +4,8 @@
 -extra src/printasm.cmxs src/printasm.cmo ""
 -extra-phony install-plugin "" "make -C extraction install"
 -extra-phony install install-plugin ""
+-extra-phony clean-plugin "" "make -C extraction clean"
+-extra-phony clean clean-plugin ""
 src/bitsrep.v
 src/bitsops.v
 src/monad.v
