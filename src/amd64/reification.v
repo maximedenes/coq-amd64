@@ -43,6 +43,15 @@ Reification for scale.
 Instance encode_tuple T `{Encodable.t T} n : Encodable.t (n.-tuple T) :=
   fun t => encode (t : seq T).
 
+Lemma altP P b : reflect P b -> alt_spec P b b.
+Proof. by move=> Pb; case def_b: b / Pb; constructor; rewrite ?def_b. Defined.
+
+Lemma idP {b1 : bool} : reflect b1 b1.
+Proof. by case b1; constructor. Defined.
+
+Lemma boolP (b1 : bool) : alt_spec b1 b1 b1.
+Proof. exact: (altP idP). Defined.
+
 Instance decode_tuple T `{Decodable.t T} n : Decodable.t (n.-tuple T) :=
   fun e => if decode e is Some s then
      if boolP (size s == n) is AltTrue p then Some (@Tuple n T s p)
