@@ -271,10 +271,9 @@ let print_program_with_symb oc (symb,prog) =
 
 let print_program_coq p =
   let p = Reification.import_input p in
-  (match p with
-  | Some p -> print_program_with_symb stdout p
-  | _ -> ());
-  CoqFFIConstants.I 1
+  match p with
+  | Some p -> print_program_with_symb stdout p; CoqFFIConstants.I 1
+  | _ -> failwith "decoding error"
 
 let _ =
   CoqFFIState.register_fun "print_program" print_program_coq
