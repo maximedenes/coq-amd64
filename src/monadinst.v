@@ -1,7 +1,7 @@
 (*===========================================================================
     Some useful instances of Monad
   ===========================================================================*)
-Require Import Ssreflect.ssreflect Ssreflect.ssrnat Ssreflect.eqtype Ssreflect.seq Ssreflect.finfun Ssreflect.fintype.
+From mathcomp Require Import all_ssreflect.
 Require Import monad.
 Require Import Coq.Lists.Streams.
 

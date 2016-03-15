@@ -1,7 +1,7 @@
 (*===========================================================================
     Reader monad, with instances for BYTE, WORD and DWORD
   ===========================================================================*)
-Require Import Ssreflect.ssreflect Ssreflect.ssrfun Ssreflect.ssrbool Ssreflect.finfun Ssreflect.fintype Ssreflect.ssrnat Ssreflect.eqtype Ssreflect.seq Ssreflect.tuple.
+From mathcomp Require Import all_ssreflect.
 Require Import bitsrep bitsops monad cursor.
 Require Import Coq.Logic.FunctionalExtensionality Coq.Strings.String. (* x86proved.cstring. *)
 

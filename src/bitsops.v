@@ -2,7 +2,7 @@
   Arithmetic and logical operations on n-bit words
   For proofs of properties of operations see bitsopsprops.v
   ===========================================================================*)
-From Ssreflect Require Import ssreflect ssrfun ssrbool eqtype ssrnat seq tuple.
+From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat seq tuple.
 Require Import bitsrep.
 
 Set Implicit Arguments.

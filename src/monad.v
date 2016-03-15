@@ -1,7 +1,7 @@
 (*===========================================================================
     Monadic syntax and monad laws
   ===========================================================================*)
-Require Import Ssreflect.ssreflect Ssreflect.ssrnat.
+From mathcomp Require Import ssreflect ssrnat.
 
 (* Collect the monad operations in their own class, and define nice Fsharp-like notation *)
 (*=MonadOps *)

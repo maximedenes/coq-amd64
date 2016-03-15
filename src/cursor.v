@@ -4,8 +4,7 @@
     address or the address beyond the top of memory. In other words, this is
     just [0..2^n] where n is the number of bits in an address.
   ===========================================================================*)
-Require Import Ssreflect.ssreflect Ssreflect.ssrfun Ssreflect.ssrnat Ssreflect.ssrbool Ssreflect.finfun Ssreflect.eqtype Ssreflect.fintype Ssreflect.tuple Ssreflect.seq.
-Require Import Ssreflect.choice Ssreflect.tuple Ssreflect.div.
+From mathcomp Require Import all_ssreflect.
 Require Import bitsrep bitsops.
 
 Set Implicit Arguments.

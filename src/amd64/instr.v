@@ -10,7 +10,7 @@
     - symmetry in direction (e.g. MOV r1, r2 has two encodings)
   ===========================================================================*)
 (* We need ssreflect for the [if ... then ... else ...] syntax in an inlineable way. *)
-Require Import Ssreflect.ssreflect.
+From mathcomp Require Import ssreflect.
 Require Import bitsrep reg.
 
 Inductive scale := S1 | S2 | S4 | S8.

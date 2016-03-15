@@ -5,9 +5,9 @@
     These are registers as used inside instructions, and can refer to
     overlapping sections of the real machine state e.g. AL, AH, AX, EAX
   ===========================================================================*)
-From Ssreflect Require Import ssreflect ssrfun ssrbool.
-From Ssreflect Require Import eqtype ssrnat seq choice.
-From Ssreflect Require Import fintype tuple.
+From mathcomp Require Import ssreflect ssrfun ssrbool.
+From mathcomp Require Import eqtype ssrnat seq choice.
+From mathcomp Require Import fintype tuple.
 Require Import bitsrep.
 
 (* TODO: check that RSP can be used as an index register on x86-64 with  *)

@@ -3,7 +3,7 @@
     You can cut-and-paste this notation into inline assembler in VS!
   ===========================================================================*)
 Require Import ZArith.
-From Ssreflect Require Import ssreflect ssrbool seq.
+From mathcomp Require Import ssreflect ssrbool seq.
 Require Import bitsrep bitsops amd64.reg amd64.instr.
 Require Export Coq.Strings.String.
 

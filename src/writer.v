@@ -1,7 +1,7 @@
 (*===========================================================================
     Syntax for writers, with instances for BYTE and DWORD
   ===========================================================================*)
-Require Import Ssreflect.ssreflect Ssreflect.ssrfun Ssreflect.ssrbool Ssreflect.finfun Ssreflect.fintype Ssreflect.ssrnat Ssreflect.eqtype Ssreflect.seq Ssreflect.tuple.
+From mathcomp Require Import all_ssreflect.
 Require Import bitsrep bitsops cursor monad monadinst cstring.
 Require Import Coq.Logic.FunctionalExtensionality Coq.Strings.String.
 

@@ -1,4 +1,4 @@
-Require Import Ssreflect.ssreflect Ssreflect.ssrbool Ssreflect.ssrnat Ssreflect.eqtype Ssreflect.seq Ssreflect.fintype.
+From mathcomp Require Import all_ssreflect.
 Require Import bitsops bitsrep instr instrsyntax monad reader writer.
 
 Set Implicit Arguments.
@@ -17,8 +17,6 @@ Inductive program :=
 | prog_directive (s : string).
 Coercion prog_instr: Instr >-> program.
 (*=End *)
-
-Require Import Ssreflect.tuple.
 
 (* Instructions in instrsyntax are up to level 60, so delimiters need to be
    above that. *)

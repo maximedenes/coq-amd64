@@ -11,9 +11,9 @@
   Definitions of operations on bitvectors can be found in bitsops.v
   Proofs of properties of operations can be found in bitsopsprops.v
   ===========================================================================*)
-From Ssreflect Require Import ssreflect ssrfun ssrbool eqtype ssrnat seq.
-From Ssreflect Require Import fintype.
-From Ssreflect Require Import tuple zmodp.
+From mathcomp Require Import ssreflect ssrfun ssrbool eqtype ssrnat seq.
+From mathcomp Require Import fintype.
+From mathcomp Require Import tuple zmodp.
 Require Import Coq.ZArith.ZArith Coq.Strings.String.
 (* We represent n-bit words by a tuple of booleans, least-significant bit at the head *)
 (* DWORDorBYTE is especially useful for multi-mode instructions *)
